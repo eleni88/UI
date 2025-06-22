@@ -19,6 +19,14 @@ const Profile = { template: `<div class="container p-5">
                                     @click="editPassClick(user)">
                                     Update Password
                                 </button>
+
+                                <!-- Button to Open the Modal for update security questions -->
+                                <button type="button" class="btn btn-secondary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#QuestionsModal"
+                                    @click="editQuestionsClick(user)">
+                                    Update Password
+                                </button>
                                 
 
                                 <button type="button" @click="deleteProfile(user)" v-if="!user.admin"
@@ -115,6 +123,84 @@ const Profile = { template: `<div class="container p-5">
                                     </div>
                                 </div>
 
+                                <!-- The Security Questions Modal -->
+                                <div class="modal" id="QuestionsModal">
+                                    <div class="modal-dialog modal-xl">
+                                        <div class="modal-content">
+
+                                        <!-- Modal Header -->
+                                        <div class="modal-header">
+                                            <h4 class="modal-title"> {{ modalTitle }} </h4>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <!-- Modal body -->
+                                        <div class="modal-body">
+                                        
+                                            <!---------------------------- Question 1 ----------------------------->
+                                            <label class="form-label">Question 1:</label>
+                                                <select v-model="QuestionsForm.securityQuestion" name="SecurityQuestion" class="form-select" required>
+                                                <option value="" disabled>Select a question</option>
+                                                <option v-for="question in securityQuestions" :key="'q-' + question" :value="question">
+                                                    {{ question }}
+                                                </option>
+                                                </select>
+                                                <div style="color: red;" v-if="fieldErrors.Securityquestion">
+                                                {{ fieldErrors.Securityquestion[0] }}
+                                                </div>
+                                                <div class="invalid-feedback">Please fill out this field.</div>
+                                            <br>
+                                            <label class="form-label">Answer 1:</label>
+                                            <input name="securityanswer" type="text" class="form-control" v-model="QuestionsForm.securityAnswer" required/>
+                                            <div class="invalid-feedback">Please fill out this field.</div> 
+                                            <br>
+                                            <!---------------------------- Question 2 ----------------------------->
+                                            <label class="form-label">Question 2:</label>
+                                                <select v-model="QuestionsForm.securityQuestion1" name="SecurityQuestion1" class="form-select" required>
+                                                <option value="" disabled>Select a question</option>
+                                                <option v-for="question in securityQuestions" :key="'q1-' + question" :value="question">
+                                                    {{ question }}
+                                                </option>
+                                                </select>
+                                                <div style="color: red;" v-if="fieldErrors.Securityquestion1">
+                                                {{ fieldErrors.Securityquestion1[0] }}
+                                                </div>
+                                                <div class="invalid-feedback">Please fill out this field.</div>
+                                            <br>
+                                            <label class="form-label">Answer 2:</label>
+                                            <input name="securityanswer1" type="text" class="form-control" v-model="QuestionsForm.securityAnswer1" required/>
+                                            <div class="invalid-feedback">Please fill out this field.</div> 
+                                            <br>
+                                            <!---------------------------- Question 3 ----------------------------->   
+                                            <label class="form-label">Question 3:</label>
+                                                <select v-model="QuestionsForm.securityQuestion2" name="SecurityQuestion2" class="form-select" required>
+                                                <option value="" disabled>Select a question</option>
+                                                <option v-for="question in securityQuestions" :key="'q2-' + question" :value="question">
+                                                    {{ question }}
+                                                </option>
+                                                </select>
+                                                <div style="color: red;" v-if="fieldErrors.Securityquestion2">
+                                                {{ fieldErrors.Securityquestion2[0] }}
+                                                </div>
+                                                <div class="invalid-feedback">Please fill out this field.</div>
+                                            <br>
+                                            <label class="form-label">Answer 3:</label>
+                                            <input name="securityanswer2" type="text" class="form-control" v-model="QuestionsForm.securityAnswer2" required/>
+                                            <div class="invalid-feedback">Please fill out this field.</div>
+                                            <br>
+
+
+
+
+                                        
+                                            <button type="button" @click="updateQuestions()" class="btn btn-secondary">
+                                                Update
+                                            </button>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+
 
                                 <div v-if="user">
                                         Active:
@@ -192,6 +278,21 @@ const Profile = { template: `<div class="container p-5">
                 NewPassword: '',
                 ConfirmPassword: '' 
             },
+            QuestionsForm:{
+                securityQuestion: '',
+                securityAnswer: '',
+                securityQuestion1: '',
+                securityAnswer1: '',
+                securityQuestion2: '',
+                securityAnswer2: '',
+            },
+            securityQuestions: [
+              "What city were you born in?",
+              "What is your oldest sibling’s middle name?",
+              "What was the first concert you attended?",
+              "What was the make and model of your first car?",
+              "In what city or town did your parents meet?"
+            ],
             fieldErrors: {},
             actionMessage: ''
         };
@@ -397,6 +498,51 @@ const Profile = { template: `<div class="container p-5">
         }
         catch(err){
             this.error = err.message;    
+        }
+    },
+    async updateQuestions(){
+        this.error = null;
+        this.fieldErrors = {};
+        try{
+            if (!this.selectedUser){
+                    throw new Error(`User or user links not found`);
+                }
+            const csrf = getScrfToken();    
+            const response = await fetch(variables.API_URL + "Users/updatequestions", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf 
+                },
+                body: JSON.stringify(this.QuestionsForm),
+                credentials: 'include'
+                }); 
+            let data;
+                try{
+                data = await response.json();
+                }
+                catch{
+                data={};
+                } 
+                if (response.status === 401){
+                    const refreshresponse = await window.refreshToken();
+                    if (refreshresponse.ok){
+                        await this.updateQuestions();
+                    }
+                    else{
+                        this.$router.push('/login');
+                    }
+                    return;
+                }
+            if ((!response.ok) && (response.status != 401)){
+              throw new Error(data.message || `HTTP error! status: ${response.status}`);
+            } 
+            this.actionMessage='Security questions updated successfully.'   
+            alert(this.actionMessage); 
+            this.getProfile();     
+        }
+        catch(err){
+            this.error = err.message;
         }
     }
 },
