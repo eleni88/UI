@@ -1,0 +1,26 @@
+#submitform {
+    margin-top: 20px;
+}
+
+.form-control {
+    padding: 10px;
+    margin: 5px 0;
+    width: 50%;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.form-select{
+    padding: 10px;
+    margin: 5px 0;
+    width: 50%;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+
+}
+
+.no-link-style{
+    text-decoration: none;
+    color:ghostwhite;
+    cursor: pointer;
+}
