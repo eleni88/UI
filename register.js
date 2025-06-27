@@ -167,6 +167,7 @@ const register = { template: `<div class="container p-5">
               headers: {
                 'Content-Type': 'application/json'
               },
+              credentials: 'include',
               body: JSON.stringify(this.form)
             });
             let data;
@@ -176,6 +177,9 @@ const register = { template: `<div class="container p-5">
             catch{
               data={};
             }
+            console.log('error', data.errors);
+            console.log('data', data);
+
             if (!response.ok) {
               if (data && typeof data === 'object' && data.errors) {
                 this.fieldErrors = data.errors;

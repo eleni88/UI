@@ -504,7 +504,7 @@ const simulations = {
             this.fieldErrors = {};
 
             try{
-                const csrf = getScrfToken();
+                const csrf = window.getScrfToken(); 
                 const response = await fetch(variables.API_URL + "Simulation/create", {
                 method: 'POST',
                 headers: {
@@ -559,7 +559,7 @@ const simulations = {
                 const simlink = this.selectedSim._links.find(link => link.rel === 'update_sim'); 
                 console.log('simlink:', simlink);
                 if (simlink != null) {   
-                const csrf = getScrfToken();     
+                const csrf = window.getScrfToken();      
                 const response = await fetch(simlink.href, {
                 method: simlink.method,
                 headers: {
@@ -615,7 +615,7 @@ const simulations = {
                 const component = this.$refs.securityQuestionComponent;
                 component.submitQuestions( async () => {
                 const link = sim._links.find(link => link.rel === 'delete_sim');
-                const csrf = getScrfToken();
+                const csrf = window.getScrfToken(); 
                 const response = await fetch(link.href, {
                     method: link.method, 
                     headers: {
@@ -713,7 +713,7 @@ const simulations = {
             try{
                 console.log('simid:', simid);
                 console.log('simexecid:', simexecid);
-              const csrf = getScrfToken();  
+              const csrf = window.getScrfToken();  
               const response = await fetch(variables.API_URL + simid + "/simexecutions/" + simexecid, {
               method: 'DELETE',
               headers: {

@@ -297,14 +297,7 @@ const Profile = { template: `<div class="container p-5">
             actionMessage: ''
         };
     },
-    methods:{
-        getScrfToken(){
-        const csrf = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrf_token='))
-        ?.split('=')[1];
-        return csrf;
-     },    
+    methods:{  
      async getProfile(){
         try{
         const response = await fetch(variables.API_URL + "Users/profile", {
@@ -365,7 +358,7 @@ const Profile = { template: `<div class="container p-5">
             if (!this.selectedUser){
                     throw new Error(`User or user links not found`);
                 }
-            const csrf = getScrfToken();    
+            const csrf = window.getScrfToken();    
             const response = await fetch(variables.API_URL + "Users/profile", {
                 method: 'POST',
                 headers: {
@@ -419,7 +412,7 @@ const Profile = { template: `<div class="container p-5">
             if (!this.selectedUser){
                     throw new Error(`User not found`);
                 }
-            const csrf = getScrfToken();
+            const csrf = window.getScrfToken(); 
             const response = await fetch(variables.API_URL + "passwordchange/update", {
                 method: 'PUT',
                 headers: {
@@ -461,7 +454,7 @@ const Profile = { template: `<div class="container p-5">
     },
     async deleteProfile(user){
         try{
-            const csrf = getScrfToken();
+            const csrf = window.getScrfToken(); 
             const response = await fetch(variables.API_URL + "Users/profile", {
                 method: 'DELETE',
                 headers: {
@@ -507,7 +500,7 @@ const Profile = { template: `<div class="container p-5">
             if (!this.selectedUser){
                     throw new Error(`User or user links not found`);
                 }
-            const csrf = getScrfToken();    
+            const csrf = window.getScrfToken();   
             const response = await fetch(variables.API_URL + "Users/updatequestions", {
                 method: 'POST',
                 headers: {

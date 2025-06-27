@@ -465,7 +465,7 @@ data(){
             this.error = null;
             this.fieldErrors = {};
             try{
-                const csrf = getScrfToken();
+                const csrf = window.getScrfToken(); 
                 const response = await fetch(variables.API_URL + "Users/create", {
                 method: 'POST',
                 headers: {
@@ -519,7 +519,7 @@ data(){
                 }
                 const userlink = this.selectedUser._links.find(link => link.rel === 'update_user'); 
                 if (userlink != null) {  
-                const csrf = getScrfToken();      
+                const csrf = window.getScrfToken();      
                 const response = await fetch(userlink.href, {
                 method: userlink.method,
                 headers: {
@@ -577,7 +577,7 @@ data(){
                     throw new Error(`User or user links not found`);
                 }
                 const link = user._links.find(link => link.rel === 'delete_user');
-                const csrf = getScrfToken();
+                const csrf = window.getScrfToken(); 
                 const response = await fetch(link.href, {
                     method: link.method, 
                     headers: {
