@@ -53,11 +53,12 @@ methods: {
       this.$router.push(this.getRoutePath(link.rel));
       return;
     }
-    alert(`Logged out successfully`)
     await fetch(link.href, { 
       method: link.method,
       credentials: 'include'
     });
+
+    alert(`Logged out successfully`)
     this.fetchNavigation(); // refresh buttons
     this.$router.push('/');
   }

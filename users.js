@@ -465,12 +465,10 @@ data(){
             this.error = null;
             this.fieldErrors = {};
             try{
-                const csrf = window.getScrfToken(); 
                 const response = await fetch(variables.API_URL + "Users/create", {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf 
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(this.form),
                 credentials: 'include'
@@ -518,13 +516,11 @@ data(){
                     throw new Error(`User or user links not found`);
                 }
                 const userlink = this.selectedUser._links.find(link => link.rel === 'update_user'); 
-                if (userlink != null) {  
-                const csrf = window.getScrfToken();      
+                if (userlink != null) {      
                 const response = await fetch(userlink.href, {
                 method: userlink.method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf 
+                    'Content-Type': 'application/json'
                 },
                 body: bodyStr = JSON.stringify(this.form),
                 credentials: 'include'
@@ -577,12 +573,10 @@ data(){
                     throw new Error(`User or user links not found`);
                 }
                 const link = user._links.find(link => link.rel === 'delete_user');
-                const csrf = window.getScrfToken(); 
                 const response = await fetch(link.href, {
                     method: link.method, 
                     headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf 
+                    'Content-Type': 'application/json'
                     },
                     credentials: 'include'   
                 });

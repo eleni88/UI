@@ -357,13 +357,11 @@ const Profile = { template: `<div class="container p-5">
         try{
             if (!this.selectedUser){
                     throw new Error(`User or user links not found`);
-                }
-            const csrf = window.getScrfToken();    
+                }  
             const response = await fetch(variables.API_URL + "Users/profile", {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf 
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(this.form),
                 credentials: 'include'
@@ -412,12 +410,10 @@ const Profile = { template: `<div class="container p-5">
             if (!this.selectedUser){
                     throw new Error(`User not found`);
                 }
-            const csrf = window.getScrfToken(); 
             const response = await fetch(variables.API_URL + "passwordchange/update", {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf 
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(this.PassChangeForm),
                 credentials: 'include'
@@ -454,12 +450,10 @@ const Profile = { template: `<div class="container p-5">
     },
     async deleteProfile(user){
         try{
-            const csrf = window.getScrfToken(); 
             const response = await fetch(variables.API_URL + "Users/profile", {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf 
+                    'Content-Type': 'application/json'
                 },
                 credentials: 'include'
                 }); 
@@ -499,13 +493,11 @@ const Profile = { template: `<div class="container p-5">
         try{
             if (!this.selectedUser){
                     throw new Error(`User or user links not found`);
-                }
-            const csrf = window.getScrfToken();   
+                } 
             const response = await fetch(variables.API_URL + "Users/updatequestions", {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf 
+                    'Content-Type': 'application/json' 
                 },
                 body: JSON.stringify(this.QuestionsForm),
                 credentials: 'include'
