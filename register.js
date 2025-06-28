@@ -177,14 +177,13 @@ const register = { template: `<div class="container p-5">
             catch{
               data={};
             }
-            console.log('error', data.errors);
-            console.log('data', data);
 
             if (!response.ok) {
               if (data && typeof data === 'object' && data.errors) {
                 this.fieldErrors = data.errors;
+                throw new Error(data.errors.message || `HTTP error! status: ${response.status}`);
               }
-              throw new Error(data.errors.message || `HTTP error! status: ${response.status}`);
+              throw new Error(data.message || `HTTP error! status: ${response.status}`);
             }
            
             this.submitmessage = `Registration successfully`;

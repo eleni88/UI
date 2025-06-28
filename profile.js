@@ -4,35 +4,35 @@ const Profile = { template: `<div class="container p-5">
                                 <h5> {{ user.firstname }} {{ user.lastname }}</h5>
                                 </div>
                                 <div v-if="user">
-                                <!-- Button to Open the Modal for update profile -->
-                                <button type="button" class="btn btn-secondary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#ProfileModal"
-                                    @click="editClick(user)">
-                                    Update Profile
-                                </button>
+                                    <!-- Button to Open the Modal for update profile -->
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ProfileModal"
+                                        @click="editClick(user)">
+                                        Update Profile
+                                    </button>
 
-                                 <!-- Button to Open the Modal for update password -->
-                                <button type="button" class="btn btn-secondary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#PasswordModal"
-                                    @click="editPassClick(user)">
-                                    Update Password
-                                </button>
+                                    <!-- Button to Open the Modal for update password -->
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#PasswordModal"
+                                        @click="editPassClick(user)">
+                                        Update Password
+                                    </button>
 
-                                <!-- Button to Open the Modal for update security questions -->
-                                <button type="button" class="btn btn-secondary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#QuestionsModal"
-                                    @click="editQuestionsClick(user)">
-                                    Update Password
-                                </button>
-                                
+                                    <!-- Button to Open the Modal for update security questions -->
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#QuestionsModal"
+                                        @click="editQuestionsClick(user)">
+                                        Update Security Questions
+                                    </button>
+                                    
 
-                                <button type="button" @click="deleteProfile(user)" v-if="!user.admin"
-                                    class="btn btn-secondary">
-                                        Delete    
-                                </button>
+                                    <button type="button" @click="deleteProfile(user)" v-if="!user.admin"
+                                        class="btn btn-secondary">
+                                            Delete    
+                                    </button>
                                 </div>
 
 
@@ -105,15 +105,24 @@ const Profile = { template: `<div class="container p-5">
                                         <div class="modal-body">
                                             <div class="input-group mb-3">
                                                 <span class="input-group-text">OldPassword:</span>
-                                                <input name="password" type="text" class="form-control" v-model="PassChangeForm.OldPassword" required>
+                                                <input name="password" type="password" class="form-control" v-model="PassChangeForm.OldPassword" required>
+                                                <div style="color: red;" v-if="fieldErrors.OldPassword">
+                                                    {{ fieldErrors.OldPassword[0] }}
+                                                </div>
                                             </div>
                                             <div class="input-group mb-3">
                                                 <span class="input-group-text">NewPassword:</span>
-                                                <input name="password" type="text" class="form-control" v-model="PassChangeForm.NewPassword" required>
+                                                <input name="password" type="password" class="form-control" v-model="PassChangeForm.NewPassword" required>
+                                                <div style="color: red;" v-if="fieldErrors.NewPassword">
+                                                    {{ fieldErrors.NewPassword[0] }} 
+                                                </div>
                                             </div>
                                             <div class="input-group mb-3">
                                                 <span class="input-group-text">ConfirmPassword:</span>
-                                                <input name="password" type="text" class="form-control" v-model="PassChangeForm.ConfirmPassword" required>
+                                                <input name="password" type="password" class="form-control" v-model="PassChangeForm.ConfirmPassword" required>
+                                                <div style="color: red;" v-if="fieldErrors.ConfirmPassword">
+                                                    {{ fieldErrors.ConfirmPassword[0] }} 
+                                                </div>
                                             </div>                                    
                                             <button type="button" @click="updatePassword()" class="btn btn-secondary">
                                                 Update
@@ -136,7 +145,6 @@ const Profile = { template: `<div class="container p-5">
 
                                         <!-- Modal body -->
                                         <div class="modal-body">
-                                        
                                             <!---------------------------- Question 1 ----------------------------->
                                             <label class="form-label">Question 1:</label>
                                                 <select v-model="QuestionsForm.securityQuestion" name="SecurityQuestion" class="form-select" required>
@@ -146,13 +154,15 @@ const Profile = { template: `<div class="container p-5">
                                                 </option>
                                                 </select>
                                                 <div style="color: red;" v-if="fieldErrors.Securityquestion">
-                                                {{ fieldErrors.Securityquestion[0] }}
+                                                    {{ fieldErrors.Securityquestion[0] }}
                                                 </div>
-                                                <div class="invalid-feedback">Please fill out this field.</div>
+                                                
                                             <br>
                                             <label class="form-label">Answer 1:</label>
                                             <input name="securityanswer" type="text" class="form-control" v-model="QuestionsForm.securityAnswer" required/>
-                                            <div class="invalid-feedback">Please fill out this field.</div> 
+                                            <div style="color: red;" v-if="fieldErrors.Securityanswer">
+                                                {{ fieldErrors.Securityanswer[0] }}
+                                            </div>
                                             <br>
                                             <!---------------------------- Question 2 ----------------------------->
                                             <label class="form-label">Question 2:</label>
@@ -163,13 +173,15 @@ const Profile = { template: `<div class="container p-5">
                                                 </option>
                                                 </select>
                                                 <div style="color: red;" v-if="fieldErrors.Securityquestion1">
-                                                {{ fieldErrors.Securityquestion1[0] }}
+                                                    {{ fieldErrors.Securityquestion1[0] }}
                                                 </div>
-                                                <div class="invalid-feedback">Please fill out this field.</div>
+                                                
                                             <br>
                                             <label class="form-label">Answer 2:</label>
                                             <input name="securityanswer1" type="text" class="form-control" v-model="QuestionsForm.securityAnswer1" required/>
-                                            <div class="invalid-feedback">Please fill out this field.</div> 
+                                            <div style="color: red;" v-if="fieldErrors.Securityanswer1">
+                                                {{ fieldErrors.Securityanswer1[0] }}
+                                            </div>
                                             <br>
                                             <!---------------------------- Question 3 ----------------------------->   
                                             <label class="form-label">Question 3:</label>
@@ -180,19 +192,17 @@ const Profile = { template: `<div class="container p-5">
                                                 </option>
                                                 </select>
                                                 <div style="color: red;" v-if="fieldErrors.Securityquestion2">
-                                                {{ fieldErrors.Securityquestion2[0] }}
+                                                    {{ fieldErrors.Securityquestion2[0] }}
                                                 </div>
-                                                <div class="invalid-feedback">Please fill out this field.</div>
+                                                
                                             <br>
                                             <label class="form-label">Answer 3:</label>
                                             <input name="securityanswer2" type="text" class="form-control" v-model="QuestionsForm.securityAnswer2" required/>
-                                            <div class="invalid-feedback">Please fill out this field.</div>
+                                            <div style="color: red;" v-if="fieldErrors.Securityanswer2">
+                                                {{ fieldErrors.Securityanswer2[0] }}
+                                            </div>
                                             <br>
 
-
-
-
-                                        
                                             <button type="button" @click="updateQuestions()" class="btn btn-secondary">
                                                 Update
                                             </button>
@@ -336,6 +346,19 @@ const Profile = { template: `<div class="container p-5">
             this.error = err.message;
           }         
     },
+    clearPassChangeForm(){
+            this.PassChangeForm.OldPassword = ''; 
+            this.PassChangeForm.NewPassword = '';
+            this.PassChangeForm.ConfirmPassword = ''; 
+        },
+    clearQuestionsForm(){
+            this.QuestionsForm.securityQuestion = '';
+            this.QuestionsForm.securityAnswer = '';
+            this.QuestionsForm.securityQuestion1 = '';
+            this.QuestionsForm.securityAnswer1 = '';
+            this.QuestionsForm.securityQuestion2 = '';
+            this.QuestionsForm.securityAnswer2 = '';
+        },
     editClick(user){
             this.modalTitle="Edit User";
             this.mode="edit";
@@ -359,7 +382,7 @@ const Profile = { template: `<div class="container p-5">
                     throw new Error(`User or user links not found`);
                 }  
             const response = await fetch(variables.API_URL + "Users/profile", {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -385,7 +408,11 @@ const Profile = { template: `<div class="container p-5">
                     return;
                 }
             if ((!response.ok) && (response.status != 401)){
-              throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                if (data && typeof data === 'object' && data.errors) {
+                    this.fieldErrors = data.errors;
+                throw new Error(data.errors.message || `HTTP error! status: ${response.status}`);    
+              }
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
             } 
             this.actionMessage='Profile updated successfully.'   
             alert(this.actionMessage); 
@@ -401,6 +428,7 @@ const Profile = { template: `<div class="container p-5">
             if (user) {
             this.selectedUser=user;
             };
+            this.clearPassChangeForm();
         },
     async updatePassword(){
         this.error = null;
@@ -437,6 +465,10 @@ const Profile = { template: `<div class="container p-5">
                     return;
                 }
                 if ((!response.ok) && (response.status != 401)){
+                    if (data && typeof data === 'object' && data.errors) {
+                        this.fieldErrors = data.errors;
+                    throw new Error(data.errors.message || `HTTP error! status: ${response.status}`);    
+              }
                 throw new Error(data.message || `HTTP error! status: ${response.status}`);
                 } 
             this.actionMessage='Password updated successfully.'   
@@ -487,6 +519,14 @@ const Profile = { template: `<div class="container p-5">
             this.error = err.message;    
         }
     },
+    editQuestionsClick(user){
+        this.modalTitle="Edit Security Questions";
+        this.mode="edit";
+        if (user) {
+        this.selectedUser=user;        
+        }
+        this.clearQuestionsForm();
+    },
     async updateQuestions(){
         this.error = null;
         this.fieldErrors = {};
@@ -495,7 +535,7 @@ const Profile = { template: `<div class="container p-5">
                     throw new Error(`User or user links not found`);
                 } 
             const response = await fetch(variables.API_URL + "Users/updatequestions", {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json' 
                 },
@@ -520,7 +560,11 @@ const Profile = { template: `<div class="container p-5">
                     return;
                 }
             if ((!response.ok) && (response.status != 401)){
-              throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                    if (data && typeof data === 'object' && data.errors) {
+                        this.fieldErrors = data.errors;
+                    throw new Error(data.errors.message || `HTTP error! status: ${response.status}`);    
+              }
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
             } 
             this.actionMessage='Security questions updated successfully.'   
             alert(this.actionMessage); 
