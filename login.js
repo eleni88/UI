@@ -43,7 +43,7 @@ const login = { template: `<div class="container p-5">
                                 </div>
 
                                 <!-- The Password Reset Modal -->
-                                <div class="modal" id="PasswordModal">
+                                <div class="modal" id="PasswordResetModal">
                                     <div class="modal-dialog modal-xl">
                                         <div class="modal-content">
 
@@ -58,18 +58,30 @@ const login = { template: `<div class="container p-5">
                                             <div class="input-group mb-3">
                                                 <span class="input-group-text">Username:</span>
                                                 <input name="UserName" type="text" class="form-control" v-model="PassChangeForm.UserName" required>
+                                                <div style="color: red;" v-if="fieldErrors.UserName">
+                                                    {{ fieldErrors.UserName[0] }}
+                                                </div>
                                             </div>
                                             <div class="input-group mb-3">
-                                                <span class="input-group-text">OldPassword:</span>
-                                                <input name="password" type="text" class="form-control" v-model="PassChangeForm.TempPassword" required>
+                                                <span class="input-group-text">Temporary Password:</span>
+                                                <input name="password" type="password" class="form-control" v-model="PassChangeForm.TempPassword" required>
+                                                <div style="color: red;" v-if="fieldErrors.TempPassword">
+                                                    {{ fieldErrors.TempPassword[0] }}
+                                                </div>
                                             </div>
                                             <div class="input-group mb-3">
-                                                <span class="input-group-text">NewPassword:</span>
-                                                <input name="password" type="text" class="form-control" v-model="PassChangeForm.NewPassword" required>
+                                                <span class="input-group-text">New Password:</span>
+                                                <input name="password" type="password" class="form-control" v-model="PassChangeForm.NewPassword" required>
+                                                <div style="color: red;" v-if="fieldErrors.NewPassword">
+                                                    {{ fieldErrors.NewPassword[0] }}
+                                                </div>
                                             </div>
                                             <div class="input-group mb-3">
-                                                <span class="input-group-text">ConfirmPassword:</span>
-                                                <input name="password" type="text" class="form-control" v-model="PassChangeForm.ConfirmPassword" required>
+                                                <span class="input-group-text">Confirm Password:</span>
+                                                <input name="password" type="password" class="form-control" v-model="PassChangeForm.ConfirmPassword" required>
+                                                <div style="color: red;" v-if="fieldErrors.ConfirmPassword">
+                                                    {{ fieldErrors.ConfirmPassword[0] }}
+                                                </div>
                                             </div>                                    
                                             <button type="button" @click="ResetPassword()" class="btn btn-secondary">
                                                 Update
@@ -99,7 +111,6 @@ data(){
                 ConfirmPassword: '' 
             },
         fieldErrors: {},
-        emailSent: false    
     };
    },
    methods: {
@@ -125,10 +136,11 @@ data(){
         }
         if (!response.ok){
             if (data && typeof data === 'object' && data.errors) {
-                this.fieldErrors = data.errors;
-            }
-            throw new Error(this.fieldErrors || `HTTP error! status: ${response.status}`);
-        }
+                        this.fieldErrors = data.errors;
+                    throw new Error(data.errors.message || `HTTP error! status: ${response.status}`);    
+              }
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+            } 
             this.submitmessage = `Login successfully`;
             alert(this.submitmessage);
             await new Promise(resolve => setTimeout(resolve, 200));
@@ -166,8 +178,7 @@ data(){
                 if (!response.ok){
                         throw new Error(data.message || `HTTP error! status: ${response.status}`);
                         } 
-                this.submitmessage=data.message;
-                this.emailSent=true;   
+                this.submitmessage=data.message; 
                 alert(this.submitmessage);         
 
     },
@@ -193,12 +204,11 @@ data(){
             if (!response.ok){
                 throw new Error(`HTTP error! status: ${response.status}`);
                 } 
-            this.SendEmail(usrname);     
+            this.SendEmail(usrname);  
+            console.log('before security question hide');   
             bootstrap.Modal.getInstance(document.getElementById("SecurityQuestionModal")).hide();  
-            if (this.emailSent){
-                this.OpenResetPassModal();
-                this.emailSent=false;
-                } 
+            console.log('after security question hide');
+            this.OpenResetPassModal();
         })
        }
        catch(err){
@@ -206,7 +216,7 @@ data(){
        } 
     },
     OpenResetPassModal(){
-        new bootstrap.Modal(document.getElementById("PasswordModal")).show();    
+        new bootstrap.Modal(document.getElementById("PasswordResetModal")).show();    
     },
     async ResetPassword(){
         try{
@@ -215,12 +225,8 @@ data(){
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                UserName: this.PassChangeForm.username,
-                TempPassword: this.PassChangeForm.TempPassword,
-                NewPassword: this.PassChangeForm.NewPassword,
-                ConfirmPassword: this.PassChangeForm.ConfirmPassword
-              })
+            body: JSON.stringify(this.PassChangeForm
+              )
         });
         let data;
                 try{
@@ -232,13 +238,13 @@ data(){
                  if (!response.ok){
                     if (data && typeof data === 'object' && data.errors) {
                 this.fieldErrors = data.errors;
-                var jsonstring = JSON.stringify(this.fieldErrors);
+                throw new Error(data.errors.message || `HTTP error! status: ${response.status}`); 
               }
-                throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
                 }
                 this.submitmessage = data.message || `Password updated successfully.`
                 alert(this.submitmessage);
-                bootstrap.Modal.getInstance(document.getElementById("PasswordModal")).hide(); 
+                bootstrap.Modal.getInstance(document.getElementById("PasswordResetModal")).hide(); 
         }   
         catch(err){
             this.error = err.message; 

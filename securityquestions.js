@@ -8,6 +8,7 @@ const questions = { template: `
                                       <div style="color: red;" v-if="fieldErrors.Username">
                                         {{ fieldErrors.Username[0] }}
                                       </div> 
+                                      <br>
                                       <!---------------------------- Question  ----------------------------->
                                       <label for="SecurityQuestion">Question:</label>
                                         <select v-model="selectedQuestion" id="SecurityQuestion" name="SecurityQuestion" form="questionsform" required>
@@ -18,7 +19,7 @@ const questions = { template: `
                                         <div style="color: red;" v-if="fieldErrors.Securityquestion">
                                         {{ fieldErrors.Securityquestion[0] }}
                                         </div>
-
+                                      <br>
                                       <label for="SecurityAnswer">Answer :</label>
                                       <input type="text" v-model="answer" id="SecurityAnswer" form="questionsform" required/>
                                       <div style="color: red;" v-if="fieldErrors.Securityanswer">

@@ -90,7 +90,7 @@ const Profile = { template: `<div class="container p-5">
                                     </div>
                                 </div>
 
-                                <!-- The Password Modal -->
+                                <!-- The Password Update Modal -->
                                 <div class="modal" id="PasswordModal">
                                     <div class="modal-dialog modal-xl">
                                         <div class="modal-content">
@@ -523,7 +523,7 @@ const Profile = { template: `<div class="container p-5">
         this.modalTitle="Edit Security Questions";
         this.mode="edit";
         if (user) {
-        this.selectedUser=user;        
+        this.selectedUser=user;  
         }
         this.clearQuestionsForm();
     },
