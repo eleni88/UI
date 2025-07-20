@@ -40,7 +40,7 @@ const simulations = {
 
                                 <!-- Modal body -->
                                 <div class="modal-body">
-                                    <p> Results <p>
+                                    <p> Results </p>
                                 </div>
                             </div>
                         </div>
@@ -320,8 +320,8 @@ const simulations = {
                                     </button>
                                 </td>
                                 <td>
-                                    div class="progress" v-if="loading">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" :style="{ width: progress + '%' }"">
+                                    <div class="progress" v-if="loading">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" :style="{ width: progress + '%' }">
                                         {{ progress }} %
                                         </div>
                                     </div>
@@ -367,6 +367,13 @@ const simulations = {
                 Startdate: '',
                 Enddate: '',
                 Duration: ''
+            },
+            runform:{
+                simid: 0,
+                codeurl: '',
+                simparams: '',
+                name: '',
+                description: ''
             }, 
             fieldErrors: {},
             actionMessage: '',
@@ -387,7 +394,14 @@ const simulations = {
                 },
                 credentials: 'include'
                 });
-                const data = await response.json();
+                let data;
+                try{
+                    data = await response.json();
+                }
+                catch{
+                    data={};
+                } 
+
                 if (response.status === 401){
                     console.log("refresSimulations");
                     const refreshresponse = await window.refreshToken();
@@ -445,6 +459,15 @@ const simulations = {
                 this.simexecsform.Duration=simexec.duration;
             }
 
+        },
+        fillRunForm(sim){
+            if ((sim) && (sim.usersCollection)){
+                this.runform.simid=sim.usersCollection.simid;
+                this.runform.codeurl=sim.usersCollection.codeurl;
+                this.runform.simparams=sim.usersCollection.simparams;
+                this.runform.name=sim.usersCollection.name;
+                this.runform.description=sim.usersCollection.description;
+            }
         },
         clearSimExecsForm(){
             this.simexecsform.execid=0;
@@ -710,11 +733,15 @@ const simulations = {
                 if (!sim){
                     throw new Error(`Simulation not found`);
                 }
+                console.log("simid", sim);
+                this.fillRunForm(sim);
+                console.log("form", this.runform);
                 const response = await fetch(variables.API_URL + "SimulationRun/minikube/run", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                body: bodyStr = JSON.stringify(this.runform),
                 credentials: 'include'
                 });
                 let data;
@@ -862,5 +889,6 @@ const simulations = {
     this.fillForm();
     this.fillSimExecsFrorm();
     this.clearSimExecsForm();
+    this.fillRunForm();
     }
 }
