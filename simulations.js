@@ -27,6 +27,25 @@ const simulations = {
                         </div>
                     </div>
 
+                    <!-- The Results Modal -->
+                    <div class="modal" id="ViewResults">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h4 class="modal-title"> Results </h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                    <p> Results <p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- The SimsModal -->
                     <div class="modal" id="SimsModal">
                         <div class="modal-dialog modal-xl">
@@ -86,7 +105,7 @@ const simulations = {
                         </div>
                     </div>
 
-                    <!-- The View Simulations Modal -->
+                    <!-- The View Simulations Executions Modal -->
                     <div class="modal" id="ViewSimExecsModal">
                         <div class="modal-dialog modal-xl">
                             <div class="modal-content">
@@ -129,9 +148,6 @@ const simulations = {
                                         </tbody>
                                     </table>
                                 </div>
-
-
-
                             </div>
                         </div>
                     </div>        
@@ -220,6 +236,14 @@ const simulations = {
                                                             View   
                                                     </button>
 
+                                                    <button type="button"
+                                                        class="btn btn-secondary"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ViewResults"
+                                                        @click="ViewResultsClick(form.simid,simexec.execid)">
+                                                            Results   
+                                                    </button>
+
                                                     <button type="button" 
                                                         class="btn btn-secondary"
                                                         @click="DeleteSimExec(form.simid,simexec.execid)">
@@ -288,6 +312,22 @@ const simulations = {
                                     @click="DeleteSim(sim)" v-if="hasLink(sim._links, 'delete_sim')">
                                         Delete    
                                     </button>
+
+                                    <button type="button" 
+                                    class="btn btn-secondary"
+                                    @click="RunSimulation(sim)" :disabled="loading" >
+                                        Execute    
+                                    </button>
+                                </td>
+                                <td>
+                                    div class="progress" v-if="loading">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" :style="{ width: progress + '%' }"">
+                                        {{ progress }} %
+                                        </div>
+                                    </div>
+                                    <div v-if="!loading && dataLoaded" class="alert alert-success mt-3">
+                                        Completed
+                                    </div>
                                 </td>
                             </tr>    
                         </tbody>
@@ -329,7 +369,11 @@ const simulations = {
                 Duration: ''
             }, 
             fieldErrors: {},
-            actionMessage: ''
+            actionMessage: '',
+            loading: false,
+            progress: 0,
+            dataLoaded: false,
+            error: null
         }
     },
     methods:{
@@ -648,6 +692,71 @@ const simulations = {
             catch(err){
                 this.error = err.message;    
             }
+        },
+        async RunSimulation(sim){
+
+            this.loading = true;
+            this.progress = 0;
+            this.dataLoaded = false;
+            this.error = null;
+
+            const progress = setInterval(() => {
+              if (this.progress < 90) {
+                this.progress += 10;
+              }
+            }, 200);
+
+            try{
+                if (!sim){
+                    throw new Error(`Simulation not found`);
+                }
+                const response = await fetch(variables.API_URL + "SimulationRun/minikube/run", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+                });
+                let data;
+                try{
+                    data = await response.json();
+                }
+                catch{
+                    data={};
+                }     
+                if (response.status === 401){
+                    const refreshresponse = await window.refreshToken();
+                    if (refreshresponse.ok){
+                        await this.RunSimulation(sim);
+                    }
+                    else{
+                        this.$router.push('/login');
+                    }
+                    return;
+                }  
+                if ((!response.ok) && (response.status != 401)){
+                    if (data && typeof data === 'object' && data.errors) {
+                this.fieldErrors = data.errors;
+                var jsonstring = JSON.stringify(this.fieldErrors);
+              }
+                throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
+                }
+
+                clearInterval(progress);
+                this.progress = 100;
+                this.dataLoaded = true;
+
+            }
+            catch(err){
+                clearInterval(progress);
+                this.error = err.message;    
+            }
+            finally{
+                setTimeout(() => {
+                this.loading = false;
+              }, 500);
+            }
+            
         },
         async ViewExecClick(simid,simexecid){
             this.modalTitle="View Simulation Execution";
