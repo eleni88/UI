@@ -2,14 +2,14 @@ const register = { template: `<div class="container p-5">
                                 <h4>Register</h4>
                                 <form @submit.prevent="submitRegister" class="was-validated" id="submitform">
                                   <label class="form-label">First Name:</label><br>
-                                  <input v-model="form.firstname" name="firstname" type="text" class="form-control" form="submitform" required minlength="5" maxlength="100"/>
+                                  <input v-model="form.firstname" name="firstname" type="text" class="form-control" form="submitform" required maxlength="100"/>
                                   <div style="color: red;" v-if="fieldErrors.Firstname">
                                     {{ fieldErrors.Firstname[0] }}
                                   </div>
                                   <div class="invalid-feedback">Please fill out this field.</div>
                                   <br>
                                   <label class="form-label">Last Name:</label><br>
-                                  <input v-model="form.lastname" name="lastname" type="text" class="form-control" form="submitform" required minlength="5" maxlength="100"/>
+                                  <input v-model="form.lastname" name="lastname" type="text" class="form-control" form="submitform" required maxlength="100"/>
                                   <div style="color: red;" v-if="fieldErrors.Lastname">
                                     {{ fieldErrors.Lastname[0] }}
                                   </div>

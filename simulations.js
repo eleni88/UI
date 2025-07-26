@@ -1,7 +1,7 @@
 const simulations = {
     template: `<div class="container p-5">
-                <h4>Simulations</h4>
-                 <!-- Button to Open the Modal -->
+                    <h4>Simulations</h4>
+                    <!-- Button to Open the Modal -->
                     <button type="button" class="btn btn-secondary"
                         data-bs-toggle="modal"
                         data-bs-target="#SimsModal"
@@ -51,56 +51,78 @@ const simulations = {
                         <div class="modal-dialog modal-xl">
                             <div class="modal-content">
 
-                            <!-- Modal Header -->
-                            <div class="modal-header">
-                                <h4 class="modal-title"> {{ modalTitle }} </h4>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h4 class="modal-title"> {{ modalTitle }} </h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
 
-                            <!-- Modal body -->
-                            <div class="modal-body">
-                                <div hidden class="input-group mb-3">
-                                    <span class="input-group-text">Simid:</span>
-                                    <input name="simid" type="number" class="form-control" v-model="form.simid">
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text">Name:</span>
-                                    <input name="name" type="text" class="form-control" v-model="form.name">
-                                    <div style="color: red;" v-if="fieldErrors.Name">
-                                        {{ fieldErrors.Name }}
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                    <div hidden class="input-group mb-3">
+                                        <span class="input-group-text">Simid:</span>
+                                        <input name="simid" type="number" class="form-control" v-model="updateform.simid">
                                     </div>
-                                </div>
-                                 <div class="input-group mb-3">
-                                    <span class="input-group-text">Description:</span>
-                                    <input name="description" type="text" class="form-control" v-model="form.description">
-                                    <div style="color: red;" v-if="fieldErrors.Description">
-                                        {{ fieldErrors.Description }}
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Name:</span>
+                                        <input name="name" type="text" class="form-control" v-model="updateform.name">
+                                        <div style="color: red;" v-if="fieldErrors.Name">
+                                            {{ fieldErrors.Name }}
+                                        </div>
                                     </div>
-                                </div>
-                                 <div class="input-group mb-3">
-                                    <span class="input-group-text">Code URL:</span>
-                                    <input name="codeurl" type="text" class="form-control" v-model="form.codeurl">
-                                    <div style="color: red;" v-if="fieldErrors.Codeurl">
-                                        {{ fieldErrors.Codeurl }}
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Description:</span>
+                                        <input name="description" type="text" class="form-control" v-model="updateform.description">
+                                        <div style="color: red;" v-if="fieldErrors.Description">
+                                            {{ fieldErrors.Description }}
+                                        </div>
                                     </div>
-                                </div>
-                                 <div class="input-group mb-3">
-                                    <span class="input-group-text">Simulation Parameters:</span>
-                                    <input name="simparams" type="text" class="form-control" v-model="form.simparams">
-                                    <div style="color: red;" v-if="fieldErrors.Simparams">
-                                        {{ fieldErrors.Simparams }}
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Code URL:</span>
+                                        <input name="codeurl" type="text" class="form-control" v-model="updateform.codeurl">
+                                        <div style="color: red;" v-if="fieldErrors.Codeurl">
+                                            {{ fieldErrors.Codeurl }}
+                                        </div>
                                     </div>
-                                </div>
-                                <button type="button" @click="CreateSimulation()"
-                                    v-if="mode==='create'" class="btn btn-secondary">
-                                    Create
-                                </button>
-                                <button type="button" @click="UpdateSimulation()"
-                                    v-if="mode==='edit'" class="btn btn-secondary">
-                                    Update
-                                </button>
-                            </div>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Simulation Parameters:</span>
+                                        <input name="simparams" type="text" class="form-control" v-model="updateform.simparams">
+                                        <div style="color: red;" v-if="fieldErrors.Simparams">
+                                            {{ fieldErrors.Simparams }}
+                                        </div>
+                                    </div>
 
+                                    
+                                    <div class="input-group mb-3">
+                                        <label class="form-label">Cloud Provider</label>
+                                        <select class="form-select" v-model="updateform.simcloud">
+                                            <option v-for="provider in providers" :key="provider.cloudid" :value="provider.cloudid">
+                                            {{ provider.name }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="input-group mb-3">
+                                        <label class="form-label">Region</label>
+                                        <select class="form-select" v-model="updateform.regionid"> 
+                                            <option v-for="region in selectedProviderRegions" :key="region.regionid" :value="region.regionid">
+                                            {{ region.regioncode }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+
+                                
+                                    <button type="button" @click="CreateSimulation()"
+                                        v-if="mode==='create'" class="btn btn-secondary">
+                                        Create
+                                    </button>
+                                    <button type="button" @click="UpdateSimulation()"
+                                        v-if="mode==='edit'" class="btn btn-secondary">
+                                        Update
+                                    </button>
+                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -187,6 +209,10 @@ const simulations = {
                                              <tr>
                                                 <th>cloud Provider:</th>
                                                 <td> {{ form.simcloud }} </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Region:</th>
+                                                <td> {{ form.region.regioncode }} </td>
                                             </tr>
                                             <tr>
                                                 <th>Create date:</th>
@@ -358,7 +384,23 @@ const simulations = {
                 codeurl: '',
                 simuser: 0,
                 simcloud: 0,
+                region:{
+                        regionid: 0,
+                        regioncode: '',
+                        regionname: ''},
                 simexecutions: []
+            },
+            updateform: {
+                simid: 0,
+                name: '',
+                description: '',
+                createdate: '',
+                updatedate: '',
+                simparams: '',
+                codeurl: '',
+                simuser: 0,
+                simcloud: 0, 
+                regionid: 0   
             }, 
             simexecsform:{
                 execid: 0,
@@ -375,6 +417,7 @@ const simulations = {
                 name: '',
                 description: ''
             }, 
+            providers: [],
             fieldErrors: {},
             actionMessage: '',
             loading: false,
@@ -383,6 +426,14 @@ const simulations = {
             error: null
         }
     },
+    computed: {
+            selectedProviderRegions() {
+                const selectedProvider = this.providers.find(
+                    p => p.cloudid === this.updateform.simcloud
+                    );
+                return selectedProvider?.regions || [];
+            }
+        },
     methods:{
         async refresSimulations(){
             this.error = null;
@@ -423,30 +474,39 @@ const simulations = {
                 this.error = err.message;
             }
         },
-        clearForm(){
-            this.form.simid=0;
-            this.form.name='';
-            this.form.description='';
-            this.form.createdate='';
-            this.form.updatedate='';
-            this.form.simparams='';
-            this.form.codeurl='';
-            this.form.simuser=0;
-            this.form.simcloud=0;
-            this.form.simexecutions=[];
+        clearForm(frm){
+            frm.simid=0;
+            frm.name='';
+            frm.description='';
+            frm.createdate='';
+            frm.updatedate='';
+            frm.simparams='';
+            frm.codeurl='';
+            frm.simuser=0;
+            frm.simcloud=0;
+            frm.regionid=0;
         },
-        fillForm(sim){
+        fillForm(sim,frm){
             if ((sim) && (sim.usersCollection)){
-                this.form.simid=sim.usersCollection.simid;
-                this.form.name=sim.usersCollection.name;
-                this.form.description=sim.usersCollection.description;
-                this.form.createdate=sim.usersCollection.createdate;
-                this.form.updatedate=sim.usersCollection.updatedate;
-                this.form.simparams=sim.usersCollection.simparams;
-                this.form.codeurl=sim.usersCollection.codeurl;
-                this.form.simuser=sim.usersCollection.simuser;
-                this.form.simcloud=sim.usersCollection.simcloud;
-                this.form.simexecutions=sim.usersCollection.simexecutions;
+                frm.simid=sim.usersCollection.simid;
+                frm.name=sim.usersCollection.name;
+                frm.description=sim.usersCollection.description;
+                frm.createdate=sim.usersCollection.createdate;
+                frm.updatedate=sim.usersCollection.updatedate;
+                frm.simparams=sim.usersCollection.simparams;
+                frm.codeurl=sim.usersCollection.codeurl;
+                frm.simuser=sim.usersCollection.simuser;
+                frm.simcloud=sim.usersCollection.simcloud;
+                if (this.mode == 'view'){
+                    frm.region.regioncode=sim.usersCollection.region.regioncode;
+                    frm.region.regionname=sim.usersCollection.region.regionname;
+                    frm.region.simexecutions=sim.usersCollection.simexecutions;
+                }
+                else
+                if (this.mode == 'edit'){
+                    frm.regionid=sim.usersCollection.regionid;    
+                }
+                
             }   
         },
         fillSimExecsFrorm(simexec){
@@ -492,7 +552,6 @@ const simulations = {
         async ViewClick(sim){
             this.modalTitle="View Simulation";
             this.mode="view";  
-            
             this.error = null;
             try{
                  console.log('simid:', sim.usersCollection.simid);
@@ -530,10 +589,12 @@ const simulations = {
             } 
             let dbSimulation=data;
             if (dbSimulation){
-                this.fillForm(dbSimulation)
+                this.fillForm(dbSimulation,this.form)
+                console.log('dbSimulation', dbSimulation);
+                console.log('form.region',this.form.region);
             }
             else{
-                this.clearForm();
+                this.clearForm(this.form);
             }
         }
     }
@@ -546,18 +607,58 @@ const simulations = {
             this.modalTitle="Create Simulation";
             this.mode="create";
             this.selectedSim=null;
-            this.clearForm();
+            this.clearForm(this.updateform);
         },
         editClick(sim){
             this.modalTitle="Edit Simulation";
             this.mode="edit";
             if (sim) {
                 this.selectedSim=sim;
-                this.fillForm(sim);
+                this.fillForm(sim,this.updateform);
             }
             else
-                this.clearForm();
+                this.clearForm(this.updateform);
         },
+        async GetProviders() {
+                try {
+                const response = await fetch(variables.API_URL + "Provider", {
+                    method: "GET",
+                    headers: {
+                    'Content-Type': 'application/json'
+                },
+                    credentials: "include"
+                });
+                let data;
+                try{
+                    data = await response.json();
+                }
+                catch{
+                    data={};
+                } 
+
+                if (response.status === 401){
+                    const refreshresponse = await window.refreshToken();
+                    if (refreshresponse.ok){
+                        await this.GetProviders();
+                    }
+                    else{
+                        this.$router.push('/login');
+                    }
+                    return;
+                }
+                if ((!response.ok) && (response.status != 401)){
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                }   
+                this.providers = data;  
+                console.log("providers", this.providers);
+                console.log("provider", this.providers[0]);
+                console.log("providerid", this.providers[0].cloudid);
+            }
+            catch(err){
+                this.error = err.message;
+                }
+            },
+            
         DeleteSim(sim){
             console.log('sim:', sim);
             if (sim) {
@@ -622,14 +723,15 @@ const simulations = {
                     throw new Error(`Simulation or simulation links not found`);
                 }
                 const simlink = this.selectedSim._links.find(link => link.rel === 'update_sim'); 
-                console.log('simlink:', simlink);
+                console.log('region:', this.form.regionid);
+                console.log('provider:',this.form.simcloud);
                 if (simlink != null) {       
                 const response = await fetch(simlink.href, {
                 method: simlink.method,
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: bodyStr = JSON.stringify(this.form),
+                body: bodyStr = JSON.stringify(this.updateform),
                 credentials: 'include'
                 });
                 let data;
@@ -843,7 +945,7 @@ const simulations = {
             try{
                 console.log('simid:', simid);
                 console.log('simexecid:', simexecid);
-              const response = await fetch(variables.API_URL + simid + "/simexecutions/" + simexecid, {
+              const response = await fetch(variables.API_URL + "Simulation/" + simid + "/simexecutions/" + simexecid, {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json'
@@ -875,7 +977,6 @@ const simulations = {
             } 
             this.actionMessage='Simulation execution deleted successfully.'   
             alert(this.actionMessage);
-            this.refresSimulations();
 
             }
             catch(err){
@@ -890,5 +991,6 @@ const simulations = {
     this.fillSimExecsFrorm();
     this.clearSimExecsForm();
     this.fillRunForm();
+    this.GetProviders();
     }
 }
