@@ -103,10 +103,10 @@ const questions = { template: `
     },
    mounted(){
       const questionmodal = document.getElementById("SecurityQuestionModal");
-  if (questionmodal) {
-    questionmodal.addEventListener('hidden.bs.modal', () => {
-      this.resetForm(); 
-    });
-  }
+      if (questionmodal) {
+        questionmodal.addEventListener('hidden.bs.modal', () => {
+          this.resetForm(); 
+        });
+      }
     } 
 }
