@@ -484,6 +484,13 @@ const simulations = {
             frm.codeurl='';
             frm.simuser=0;
             frm.simcloud=0;
+            if (this.mode == 'view'){
+                frm.region.regionid=0;
+                frm.region.regioncode='';
+                frm.region.regionname='';
+            }
+            else
+            if (this.mode == 'edit')    
             frm.regionid=0;
         },
         fillForm(sim,frm){
@@ -498,12 +505,12 @@ const simulations = {
                 frm.simuser=sim.usersCollection.simuser;
                 frm.simcloud=sim.usersCollection.simcloud;
                 if (this.mode == 'view'){
+                    frm.region.regionid=sim.usersCollection.region.regionid;
                     frm.region.regioncode=sim.usersCollection.region.regioncode;
                     frm.region.regionname=sim.usersCollection.region.regionname;
-                    frm.region.simexecutions=sim.usersCollection.simexecutions;
                 }
                 else
-                if (this.mode == 'edit'){
+                if ((this.mode == 'edit') || (this.mode == 'create')){
                     frm.regionid=sim.usersCollection.regionid;    
                 }
                 
@@ -554,7 +561,6 @@ const simulations = {
             this.mode="view";  
             this.error = null;
             try{
-                 console.log('simid:', sim.usersCollection.simid);
                 const simlink = sim._links.find(link => link.rel === 'self');
                 if (simlink != null){
               const response = await fetch(simlink.href, {
@@ -677,7 +683,7 @@ const simulations = {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(this.form),
+                body: JSON.stringify(this.updateform),
                 credentials: 'include'
                 });
                 let data;
@@ -708,7 +714,6 @@ const simulations = {
               this.actionMessage='Simulation created successfully.'   
               alert(this.actionMessage);
               this.refresSimulations();
-              this.$router.push('/Simulation/'+this.form.simid);
                 
             }
             catch(err){
@@ -771,14 +776,11 @@ const simulations = {
         async DeleteSimulation(sim){
             try{
                 sim = this.selectedSim;
-                console.log('sim:', sim);
-                console.log('this.selectedsim:', this.selectedSim);
-                console.log('sim._links:', sim._links);
                 if (!sim || !sim._links){
                     throw new Error(`Simulation or simulation links not found`);
                 }
                 const component = this.$refs.securityQuestionComponent;
-                component.submitQuestions( async () => {
+                await component.submitQuestions( async () => {
                 const link = sim._links.find(link => link.rel === 'delete_sim');
                 const response = await fetch(link.href, {
                     method: link.method, 
@@ -795,7 +797,6 @@ const simulations = {
                 data={};
                 } 
                 if (response.status === 401){
-                    console.log("DeleteSimulation");
                     const refreshresponse = await window.refreshToken();
                     if (refreshresponse.ok){
                         await this.DeleteSimulation(sim);
@@ -986,11 +987,6 @@ const simulations = {
     },
     mounted(){
     this.refresSimulations();
-    this.clearForm();
-    this.fillForm();
-    this.fillSimExecsFrorm();
-    this.clearSimExecsForm();
-    this.fillRunForm();
     this.GetProviders();
     }
 }

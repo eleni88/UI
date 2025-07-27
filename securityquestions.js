@@ -50,8 +50,15 @@ const questions = { template: `
         };
     },
     methods: {
+      resetForm(){
+          this.selectedQuestion = '';
+          this.answer = '';
+          this.username = '';
+          this.error = null;
+      },
         async submitQuestions(onSuccess){
           try{
+            console.log('1',1);
             if (this.selectedQuestion && !this.answer){
               alert(`Answer must not be empty. Try again.`);
               return;             
@@ -90,7 +97,16 @@ const questions = { template: `
           catch(err){
             this.error = err.message;
           }
+          
            
         }
-    }
+    },
+   mounted(){
+      const questionmodal = document.getElementById("SecurityQuestionModal");
+  if (questionmodal) {
+    questionmodal.addEventListener('hidden.bs.modal', () => {
+      this.resetForm(); 
+    });
+  }
+    } 
 }
