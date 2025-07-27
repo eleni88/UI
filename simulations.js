@@ -208,7 +208,7 @@ const simulations = {
                                             </tr>
                                              <tr>
                                                 <th>cloud Provider:</th>
-                                                <td> {{ form.simcloud }} </td>
+                                                <td> {{ form.provider.name }} </td>
                                             </tr>
                                             <tr>
                                                 <th>Region:</th>
@@ -314,7 +314,7 @@ const simulations = {
                                 <td> {{ sim.usersCollection.createdate }} </td>
                                 <td> {{ sim.usersCollection.updatedate }} </td>
                                 <td> {{ sim.usersCollection.simuser }} </td>
-                                <td> {{ sim.usersCollection.simcloud }} </td>
+                                <td> {{ sim.usersCollection.simcloudNavigation.name }} </td>
                                 <td>
 
                                     <button type="button"
@@ -383,7 +383,10 @@ const simulations = {
                 simparams: '',
                 codeurl: '',
                 simuser: 0,
-                simcloud: 0,
+                provider:{
+                    cloudid: 0,
+                    name: ''
+                },
                 region:{
                         regionid: 0,
                         regioncode: '',
@@ -482,19 +485,24 @@ const simulations = {
             frm.updatedate='';
             frm.simparams='';
             frm.codeurl='';
-            frm.simuser=0;
-            frm.simcloud=0;
+            frm.simuser=0;          
             if (this.mode == 'view'){
                 frm.region.regionid=0;
                 frm.region.regioncode='';
                 frm.region.regionname='';
+                frm.provider.cloudid=0;
+                frm.provider.name='';
             }
             else
             if (this.mode == 'edit')    
             frm.regionid=0;
+            frm.simcloud=0;
         },
         fillForm(sim,frm){
+            console.log("frm", frm); 
+            console.log("sim", sim); 
             if ((sim) && (sim.usersCollection)){
+                
                 frm.simid=sim.usersCollection.simid;
                 frm.name=sim.usersCollection.name;
                 frm.description=sim.usersCollection.description;
@@ -502,16 +510,18 @@ const simulations = {
                 frm.updatedate=sim.usersCollection.updatedate;
                 frm.simparams=sim.usersCollection.simparams;
                 frm.codeurl=sim.usersCollection.codeurl;
-                frm.simuser=sim.usersCollection.simuser;
-                frm.simcloud=sim.usersCollection.simcloud;
-                if (this.mode == 'view'){
+                frm.simuser=sim.usersCollection.simuser;              
+                if (this.mode == 'view'){                   
                     frm.region.regionid=sim.usersCollection.region.regionid;
                     frm.region.regioncode=sim.usersCollection.region.regioncode;
-                    frm.region.regionname=sim.usersCollection.region.regionname;
+                    frm.region.regionname=sim.usersCollection.region.regionname;       
+                    frm.provider.cloudid=sim.usersCollection.simcloudNavigation.cloudid;
+                    frm.provider.name=sim.usersCollection.simcloudNavigation.name;                   
                 }
                 else
                 if ((this.mode == 'edit') || (this.mode == 'create')){
-                    frm.regionid=sim.usersCollection.regionid;    
+                    frm.regionid=sim.usersCollection.regionid;  
+                    frm.simcloud=sim.usersCollection.simcloud;  
                 }
                 
             }   
@@ -559,7 +569,7 @@ const simulations = {
         async ViewClick(sim){
             this.modalTitle="View Simulation";
             this.mode="view";  
-            this.error = null;
+            this.error = null;           
             try{
                 const simlink = sim._links.find(link => link.rel === 'self');
                 if (simlink != null){
@@ -580,7 +590,6 @@ const simulations = {
                 }    
             
                 if (response.status === 401){
-                    console.log("ViewClick");
                     const refreshresponse = await window.refreshToken();
                     if (refreshresponse.ok){
                         await this.ViewClick(sim);
@@ -595,9 +604,11 @@ const simulations = {
             } 
             let dbSimulation=data;
             if (dbSimulation){
+                console.log("ViewClick");
                 this.fillForm(dbSimulation,this.form)
                 console.log('dbSimulation', dbSimulation);
                 console.log('form.region',this.form.region);
+                console.log('form.provider',this.form.provider);
             }
             else{
                 this.clearForm(this.form);
@@ -656,9 +667,6 @@ const simulations = {
                 throw new Error(data.message || `HTTP error! status: ${response.status}`);
                 }   
                 this.providers = data;  
-                console.log("providers", this.providers);
-                console.log("provider", this.providers[0]);
-                console.log("providerid", this.providers[0].cloudid);
             }
             catch(err){
                 this.error = err.message;
