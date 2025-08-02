@@ -230,6 +230,18 @@ const simulations = {
                                                 <th>Code URL:</th>
                                                 <td> {{ form.codeurl }} </td>
                                             </tr>
+                                            <tr>
+                                                <th>Resource</th>
+                                                <td> {{ form.Resourcerequirements.Instancetype }} </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Mininstances</th>
+                                                <td> {{ form.Resourcerequirements.Mininstances }} </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Maxinstances</th>
+                                                <td> {{ form.Resourcerequirements.Maxinstances }} </td>
+                                            </tr>
                                         </tbody>
                                     </table>
 
@@ -390,7 +402,14 @@ const simulations = {
                 region:{
                         regionid: 0,
                         regioncode: '',
-                        regionname: ''},
+                        regionname: ''
+                    },
+                Resourcerequirements:[
+                        // Resourceid: 0,
+                        // Instancetype: '',
+                        // Mininstances: 0,
+                        // Maxinstances: 0
+                ],
                 simexecutions: []
             },
             updateform: {
@@ -403,7 +422,8 @@ const simulations = {
                 codeurl: '',
                 simuser: 0,
                 simcloud: 0, 
-                regionid: 0   
+                regionid: 0,
+                resourceid: 0   
             }, 
             simexecsform:{
                 execid: 0,
@@ -420,6 +440,15 @@ const simulations = {
                 name: '',
                 description: ''
             }, 
+            // resourseform:{
+            //     resourceid: 0,
+            //     resourcetype: '',
+            //     mininstances: 0,
+            //     maxinstances: 0
+            // },
+            Instancetype:[
+                "Node"
+            ],
             providers: [],
             fieldErrors: {},
             actionMessage: '',
@@ -492,6 +521,10 @@ const simulations = {
                 frm.region.regionname='';
                 frm.provider.cloudid=0;
                 frm.provider.name='';
+                frm.Resourcerequirements.Resourceid=0;
+                frm.Resourcerequirements.Instancetype='';
+                frm.Resourcerequirements.Mininstances=0;
+                frm.Resourcerequirements.Maxinstances=0;
             }
             else
             if (this.mode == 'edit')    
@@ -516,7 +549,12 @@ const simulations = {
                     frm.region.regioncode=sim.usersCollection.region.regioncode;
                     frm.region.regionname=sim.usersCollection.region.regionname;       
                     frm.provider.cloudid=sim.usersCollection.simcloudNavigation.cloudid;
-                    frm.provider.name=sim.usersCollection.simcloudNavigation.name;                   
+                    frm.provider.name=sim.usersCollection.simcloudNavigation.name;
+                    
+                    frm.Resourcerequirements.Resourceid=sim.usersCollection.resourcerequirements[0].resourceid;
+                    frm.Resourcerequirements.Instancetype=sim.usersCollection.resourcerequirements[0].instancetype;
+                    frm.Resourcerequirements.Mininstances=sim.usersCollection.resourcerequirements[0].mininstances;
+                    frm.Resourcerequirements.Maxinstances=sim.usersCollection.resourcerequirements[0].maxinstances;
                 }
                 else
                 if ((this.mode == 'edit') || (this.mode == 'create')){
