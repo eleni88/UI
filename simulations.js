@@ -29,18 +29,55 @@ const simulations = {
 
                     <!-- The Results Modal -->
                     <div class="modal" id="ViewResults">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-lg">
                             <div class="modal-content">
 
                                 <!-- Modal Header -->
                                 <div class="modal-header">
-                                    <h4 class="modal-title"> Results </h4>
+                                    <h4 class="modal-title">Results — Exec #{{ resultsForm.execid }}</h4>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
 
                                 <!-- Modal body -->
                                 <div class="modal-body">
-                                    <p> Results </p>
+                                    <div v-if="resultsForm.loading" class="d-flex align-items-center gap-2">
+                                        <div class="spinner-border text-dark" role="status"></div>
+                                        <span>Loading results…</span>
+                                    </div>
+                                    <div v-else-if="resultsForm.error" class="alert alert-danger">
+                                        {{ resultsForm.error }}
+                                    </div>
+
+                                    <template v-else>
+                                        <table class="table table-sm">
+                                            <tbody>
+                                            <tr>
+                                                <th style="width: 260px;">Customers Served</th>
+                                                <td>{{ resultsForm.CustomersServed }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Avg Waiting Time (sec)</th>
+                                                <td>{{ resultsForm.AvgWaitingTime }}</td>
+                                            </tr>
+                                            <tr v-if="resultsForm.Error">
+                                                <th>Error</th>
+                                                <td class="text-danger">{{ resultsForm.Error }}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            @click="exportResultsToPDF()"
+                                            :disabled="resultsForm.loading || resultsForm.CustomersServed===null">
+                                        Export to PDF
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        Close
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -447,8 +484,17 @@ const simulations = {
             //     maxinstances: 0
             // },
             Instancetype:[
-                "Node"
+                "Pod"
             ],
+            resultsForm:{
+                simid: 0,
+                execid: 0,
+                loading: false,
+                error: null,
+                CustomersServed: null,
+                AvgWaitingTime: null,
+                Error: null
+            },
             providers: [],
             fieldErrors: {},
             actionMessage: '',
@@ -1029,6 +1075,93 @@ const simulations = {
             catch(err){
                 this.error = err.message;
             }     
+        },
+        async ViewResultsClick(simid, simexecid) {
+            this.resultsForm.simid = simid;
+            this.resultsForm.execid = simexecid;
+            this.resultsForm.loading = true;
+            this.resultsForm.error = null;
+            this.resultsForm.CustomersServed = null;
+            this.resultsForm.AvgWaitingTime = null;
+            this.resultsForm.Error = null;
+
+            try {
+                const response = await fetch(variables.API_URL + "Simulation/" +simid + "/simexecutions/" + simexecid + "/results", {
+                method: 'GET',
+                headers: { 
+                    'Content-Type': 'application/json' },
+                credentials: 'include'
+                });
+
+                let data;
+                try { data = await response.json(); } catch { data = {}; }
+
+                if (response.status === 401) {
+                const refreshresponse = await window.refreshToken();
+                if (refreshresponse.ok) return await this.ViewResultsClick(simid, simexecid);
+                this.$router.push('/login');
+                return;
+                }
+                if (!response.ok && response.status !== 401) {
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                }
+
+                const parsed = JSON.parse(data.Execreport)
+                 this.resultsForm.CustomersServed = parsed.CustomersServed ?? null;
+                 this.resultsForm.AvgWaitingTime = parsed.AvgWaitingTime ?? null;
+                
+                 // this.resultsForm.CustomersServed = data.CustomersServed ?? null;
+                // this.resultsForm.AvgWaitingTime = data.AvgWaitingTime ?? null;
+                this.resultsForm.Error = data.Error ?? null;
+
+            } catch (err) {
+                this.resultsForm.error = err.message;
+            } finally {
+                this.resultsForm.loading = false;
+            }
+        },
+        exportResultsToPDF() {
+        if (this.resultsForm.CustomersServed === null) 
+            return;
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+
+        const left = 48, top = 56;
+        let y = top;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text('Simulation Results', left, y);
+        y += 22;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        [
+            `Simulation ID: ${this.resultsForm.simid}`,
+            `Execution ID: ${this.resultsForm.execid}`,
+            `Generated: ${new Date().toLocaleString()}`
+        ].forEach(line => { doc.text(line, left, y); y += 16; });
+        y += 8;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Summary', left, y);
+        y += 16;
+
+        doc.setFont('helvetica', 'normal');
+        const rows = [
+            ['Customers Served', String(this.resultsForm.CustomersServed)],
+            ['Avg Waiting Time (sec)', String(this.resultsForm.AvgWaitingTime)],
+        ];
+        if (this.resultsForm.Error) rows.push(['Error', this.resultsForm.Error]);
+
+        rows.forEach(([k, v]) => {
+            doc.text(`${k}: ${v}`, left, y);
+            y += 14;
+        });
+
+        const filename = `simulation_${this.resultsForm.simid}_exec_${this.resultsForm.execid}.pdf`;
+        doc.save(filename);
         }
     },
     mounted(){
