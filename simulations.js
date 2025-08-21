@@ -148,7 +148,34 @@ const simulations = {
                                         </select>
                                     </div>
 
+                                    <div class="input-group mb-3">
+                                        <label class="form-label">Resource</label>
+                                        <select class="form-select" v-model="updateform.Resourcerequirement.Instancetype">
+                                            <option disabled value="">-- Select Resource --</option>
+                                            <option v-for="res in Instancetype" :key="res" :value="res">
+                                            {{ res }}
+                                            </option>
+                                        </select>
+                                        <div style="color: red;" v-if="fieldErrors.Resourcerequirement?.Instancetype || fieldErrors.Instancetype">
+                                            {{ fieldErrors.Resourcerequirement?.Instancetype || fieldErrors.Instancetype }}
+                                        </div>
+                                    </div>
 
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">MinInstances:</span>
+                                        <input name="Resourcerequirement.Mininstances" type="text" class="form-control" v-model="updateform.Resourcerequirement.Mininstances">
+                                        <div style="color: red;" v-if="fieldErrors.Resourcerequirement?.Mininstances">
+                                            {{ fieldErrors.Resourcerequirement?.Mininstances }}
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">MaxInstances:</span>
+                                        <input name="Resourcerequirement.MaxInstances" type="text" class="form-control" v-model="updateform.Resourcerequirement.MaxInstances">
+                                        <div style="color: red;" v-if="fieldErrors.Resourcerequirement?.MaxInstances">
+                                            {{ fieldErrors.Resourcerequirement?.MaxInstances }}
+                                        </div>
+                                    </div>
                                 
                                     <button type="button" @click="CreateSimulation()"
                                         v-if="mode==='create'" class="btn btn-secondary">
@@ -269,15 +296,15 @@ const simulations = {
                                             </tr>
                                             <tr>
                                                 <th>Resource</th>
-                                                <td> {{ form.Resourcerequirements.Instancetype }} </td>
+                                                <td> {{ form.Resourcerequirement.Instancetype }} </td>
                                             </tr>
                                             <tr>
                                                 <th>Mininstances</th>
-                                                <td> {{ form.Resourcerequirements.Mininstances }} </td>
+                                                <td> {{ form.Resourcerequirement.Mininstances }} </td>
                                             </tr>
                                             <tr>
                                                 <th>Maxinstances</th>
-                                                <td> {{ form.Resourcerequirements.Maxinstances }} </td>
+                                                <td> {{ form.Resourcerequirement.Maxinstances }} </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -441,12 +468,11 @@ const simulations = {
                         regioncode: '',
                         regionname: ''
                     },
-                Resourcerequirements:[
-                        // Resourceid: 0,
-                        // Instancetype: '',
-                        // Mininstances: 0,
-                        // Maxinstances: 0
-                ],
+                Resourcerequirement:{
+                        Instancetype: '',
+                        Mininstances: 0,
+                        Maxinstances: 0
+                },
                 simexecutions: []
             },
             updateform: {
@@ -460,7 +486,11 @@ const simulations = {
                 simuser: 0,
                 simcloud: 0, 
                 regionid: 0,
-                resourceid: 0   
+                Resourcerequirement:{
+                        Instancetype: '',
+                        Mininstances: 0,
+                        Maxinstances: 0
+                },
             }, 
             simexecsform:{
                 execid: 0,
@@ -477,12 +507,6 @@ const simulations = {
                 name: '',
                 description: ''
             }, 
-            // resourseform:{
-            //     resourceid: 0,
-            //     resourcetype: '',
-            //     mininstances: 0,
-            //     maxinstances: 0
-            // },
             Instancetype:[
                 "Pod"
             ],
@@ -567,10 +591,10 @@ const simulations = {
                 frm.region.regionname='';
                 frm.provider.cloudid=0;
                 frm.provider.name='';
-                frm.Resourcerequirements.Resourceid=0;
-                frm.Resourcerequirements.Instancetype='';
-                frm.Resourcerequirements.Mininstances=0;
-                frm.Resourcerequirements.Maxinstances=0;
+                frm.Resourcerequirement.Resourceid=0;
+                frm.Resourcerequirement.Instancetype='';
+                frm.Resourcerequirement.Mininstances=0;
+                frm.Resourcerequirement.Maxinstances=0;
             }
             else
             if (this.mode == 'edit')    
@@ -597,15 +621,19 @@ const simulations = {
                     frm.provider.cloudid=sim.usersCollection.simcloudNavigation.cloudid;
                     frm.provider.name=sim.usersCollection.simcloudNavigation.name;
                     
-                    frm.Resourcerequirements.Resourceid=sim.usersCollection.resourcerequirements[0].resourceid;
-                    frm.Resourcerequirements.Instancetype=sim.usersCollection.resourcerequirements[0].instancetype;
-                    frm.Resourcerequirements.Mininstances=sim.usersCollection.resourcerequirements[0].mininstances;
-                    frm.Resourcerequirements.Maxinstances=sim.usersCollection.resourcerequirements[0].maxinstances;
+                    frm.Resourcerequirement.Resourceid=sim.usersCollection.resourcerequirement.resourceid;
+                    frm.Resourcerequirement.Instancetype=sim.usersCollection.resourcerequirement.instancetype;
+                    frm.Resourcerequirement.Mininstances=sim.usersCollection.resourcerequirement.mininstances;
+                    frm.Resourcerequirement.Maxinstances=sim.usersCollection.resourcerequirement.maxinstances;
                 }
                 else
                 if ((this.mode == 'edit') || (this.mode == 'create')){
                     frm.regionid=sim.usersCollection.regionid;  
                     frm.simcloud=sim.usersCollection.simcloud;  
+
+                    // frm.Resourcerequirement.Instancetype=sim.usersCollection.resourcerequirement.instancetype;
+                    // frm.Resourcerequirement.Mininstances=sim.usersCollection.resourcerequirement.mininstances;
+                    // frm.Resourcerequirement.Maxinstances=sim.usersCollection.resourcerequirement.maxinstances;
                 }
                 
             }   
@@ -688,11 +716,8 @@ const simulations = {
             } 
             let dbSimulation=data;
             if (dbSimulation){
-                console.log("ViewClick");
+                console.log("dbSimulation", dbSimulation);
                 this.fillForm(dbSimulation,this.form)
-                console.log('dbSimulation', dbSimulation);
-                console.log('form.region',this.form.region);
-                console.log('form.provider',this.form.provider);
             }
             else{
                 this.clearForm(this.form);
