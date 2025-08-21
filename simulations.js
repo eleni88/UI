@@ -630,10 +630,6 @@ const simulations = {
                 if ((this.mode == 'edit') || (this.mode == 'create')){
                     frm.regionid=sim.usersCollection.regionid;  
                     frm.simcloud=sim.usersCollection.simcloud;  
-
-                    // frm.Resourcerequirement.Instancetype=sim.usersCollection.resourcerequirement.instancetype;
-                    // frm.Resourcerequirement.Mininstances=sim.usersCollection.resourcerequirement.mininstances;
-                    // frm.Resourcerequirement.Maxinstances=sim.usersCollection.resourcerequirement.maxinstances;
                 }
                 
             }   

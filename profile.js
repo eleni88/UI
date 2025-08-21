@@ -20,6 +20,14 @@ const Profile = { template: `<div class="container p-5">
                                         Update Password
                                     </button>
 
+                                    <!-- Button to Open the Modal for update Cloud Credentials -->
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#CredentialsModal"
+                                        @click="addCredsClick()">
+                                        Add Cloud Credentials
+                                    </button>
+
                                     <!-- Button to Open the Modal for update security questions -->
                                     <button type="button" class="btn btn-secondary"
                                         data-bs-toggle="modal"
@@ -131,6 +139,97 @@ const Profile = { template: `<div class="container p-5">
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- The Cloud Credentials Update Modal -->
+                                <div class="modal" id="CredentialsModal">
+                                    <div class="modal-dialog modal-xl">
+                                        <div class="modal-content">
+
+                                        <!-- Modal Header -->
+                                        <div class="modal-header">
+                                            <h4 class="modal-title"> {{ modalTitle }} </h4>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <!-- Modal body -->
+                                        <div class="modal-body">
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">Cloud Provider:</span>
+                                                <input name="Cloudid" type="number" class="form-control" v-model="CredentialsForm.Cloudid" required>
+                                                <div style="color: red;" v-if="fieldErrors.Cloudid">
+                                                    {{ fieldErrors.Cloudid[0] }}
+                                                </div>
+                                            </div>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">AccessKeyId:</span>
+                                                <input name="Accesskeyid" type="password" class="form-control" v-model="CredentialsForm.Accesskeyid" required>
+                                                <div style="color: red;" v-if="fieldErrors.Accesskeyid">
+                                                    {{ fieldErrors.Accesskeyid[0] }} 
+                                                </div>
+                                            </div>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">SecretAccessKey:</span>
+                                                <input name="Secretaccesskey" type="password" class="form-control" v-model="CredentialsForm.Secretaccesskey" required>
+                                                <div style="color: red;" v-if="fieldErrors.Secretaccesskey">
+                                                    {{ fieldErrors.Secretaccesskey[0] }} 
+                                                </div>
+                                            </div>  
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">ClientId:</span>
+                                                <input name="Clientid" type="password" class="form-control" v-model="CredentialsForm.Clientid" required>
+                                                <div style="color: red;" v-if="fieldErrors.Clientid">
+                                                    {{ fieldErrors.Clientid[0] }} 
+                                                </div>
+                                            </div>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">ClientSecret:</span>
+                                                <input name="Clientsecret" type="password" class="form-control" v-model="CredentialsForm.Clientsecret" required>
+                                                <div style="color: red;" v-if="fieldErrors.Clientsecret">
+                                                    {{ fieldErrors.Clientsecret[0] }} 
+                                                </div>
+                                            </div>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">TenantId:</span>
+                                                <input name="Tenantid" type="password" class="form-control" v-model="CredentialsForm.Tenantid" required>
+                                                <div style="color: red;" v-if="fieldErrors.Tenantid">
+                                                    {{ fieldErrors.Tenantid[0] }} 
+                                                </div>
+                                            </div>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">SubscriptionId:</span>
+                                                <input name="Subscriptionid" type="password" class="form-control" v-model="CredentialsForm.Subscriptionid" required>
+                                                <div style="color: red;" v-if="fieldErrors.Subscriptionid">
+                                                    {{ fieldErrors.Subscriptionid[0] }} 
+                                                </div>
+                                            </div>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">GcpServiceKeyJson:</span>
+                                                <input name="Gcpservicekeyjson" type="string" class="form-control" v-model="CredentialsForm.Gcpservicekeyjson" required>
+                                                <div style="color: red;" v-if="fieldErrors.Gcpservicekeyjson">
+                                                    {{ fieldErrors.Gcpservicekeyjson[0] }} 
+                                                </div>
+                                            </div>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">GcpProjectId:</span>
+                                                <input name="Gcpservicekeyjson" type="password" class="form-control" v-model="CredentialsForm.Gcpprojectid" required>
+                                                <div style="color: red;" v-if="fieldErrors.Gcpservicekeyjson">
+                                                    {{ fieldErrors.Gcpservicekeyjson[0] }} 
+                                                </div>
+                                            </div>
+                                            
+                                            <button type="button" @click="updateCredentials()" v-if="mode==='edit'" class="btn btn-secondary">
+                                                Update
+                                            </button>
+                                            <button type="button" @click="addCredentials()" v-if="mode==='create'" class="btn btn-secondary">
+                                                Add
+                                            </button>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- The Cloud Credentials Modal -->
+
 
                                 <!-- The Security Questions Modal -->
                                 <div class="modal" id="QuestionsModal">
@@ -255,11 +354,39 @@ const Profile = { template: `<div class="container p-5">
                                             <td> {{ user.jobtitle }} </td>
                                         </tr>
                                     </tbody>
-                                </table>
-                                <p v-else>Loading...</p>
+                                </table>    
+
+                                <p v-else>Loading...</p>  
+                                
+                                    <table class="table" v-if="user && user.cloudcredentials">
+                                        <thead>
+                                            <tr>
+                                                <th>Cloud Credentials</th>
+                                            </tr> 
+                                            <tr>
+                                                <th>Provider</th>
+                                            </tr>  
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="cred in user.cloudcredentials" :key="user.cloudcredentials.credid">
+                                                <td> {{ cred.cloudid }} </td>  
+                                                
+                                                <td>
+
+                                                <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#CredentialsModal"
+                                                @click="editCredsClick(cred)">
+                                                    Edit   
+                                                </button>
+                                                </td>
+                                            </tr>   
+                                        </tbody>
+                                    </table>  
                                 <div v-if="error">
                                   <h3>Error: {{ error }}</h3>
-                                </div>    
+                                </div>
                             </div
     
     ` ,
@@ -272,6 +399,8 @@ const Profile = { template: `<div class="container p-5">
             selectedUser: null,
             modalTitle: '',
             buttonTitle: '',
+            cloudcreds: null,
+            cloudcredsid: 0,
             form: {
                 userid: 0,
                 firstname: '',
@@ -287,6 +416,18 @@ const Profile = { template: `<div class="container p-5">
                 OldPassword: '', 
                 NewPassword: '',
                 ConfirmPassword: '' 
+            },
+            CredentialsForm:{
+                Credid: 0,
+                Cloudid: 0,
+                Accesskeyid: '',
+                Secretaccesskey: '',
+                Clientid: '',
+                clientsecret: '',
+                Tenantid: '',
+                Subscriptionid: '',
+                Gcpservicekeyjson: '',
+                Gcpprojectid: ''
             },
             QuestionsForm:{
                 securityQuestion: '',
@@ -335,12 +476,10 @@ const Profile = { template: `<div class="container p-5">
                 }
                 return;
             }   
-            
             if ((!response.ok) && (response.status != 401)){
               throw new Error(data.message || `HTTP error! status: ${response.status}`);
             } 
             this.user=data;
-
         }
         catch(err){
             this.error = err.message;
@@ -350,6 +489,18 @@ const Profile = { template: `<div class="container p-5">
             this.PassChangeForm.OldPassword = ''; 
             this.PassChangeForm.NewPassword = '';
             this.PassChangeForm.ConfirmPassword = ''; 
+        },
+    ClearCredentialsForm(){
+            this.CredentialsForm.Credid = 0;
+            this.CredentialsForm.Cloudid = 0;
+            this.CredentialsForm.Accesskeyid = '';
+            this.CredentialsForm.Secretaccesskey = '';
+            this.CredentialsForm.Clientid = '';
+            this.CredentialsForm.clientsecret = '';
+            this.CredentialsForm.Tenantid = '';
+            this.CredentialsForm.Subscriptionid = '';
+            this.CredentialsForm.Gcpservicekeyjson = '';
+            this.CredentialsForm.Gcpprojectid = '';
         },
     clearQuestionsForm(){
             this.QuestionsForm.securityQuestion = '';
@@ -426,9 +577,21 @@ const Profile = { template: `<div class="container p-5">
             this.modalTitle="Edit Password";
             this.mode="edit";
             if (user) {
-            this.selectedUser=user;
+                this.selectedUser=user;
             };
             this.clearPassChangeForm();
+        },
+        editCredsClick(cred){
+            this.modalTitle="Edit Cloud Credentials";
+            this.mode="edit";
+            this.cloudcreds=cred;
+            this.cloudcredsid=cred.credid;
+            this.ClearCredentialsForm();
+        },
+        addCredsClick(){
+            this.modalTitle="Add Cloud Credentials";
+            this.mode="create";
+            this.ClearCredentialsForm();
         },
     async updatePassword(){
         this.error = null;
@@ -479,6 +642,104 @@ const Profile = { template: `<div class="container p-5">
             this.error = err.message;
         }
 
+    },
+    async updateCredentials(){
+        this.error = null;
+        this.fieldErrors = {};
+
+        try{
+            if ((!this.cloudcreds) && (this.cloudcredsid==0)){
+                    throw new Error(`Credentials not found`);
+                }
+                console.log("this.cloudcredsid",this.cloudcredsid)
+                console.log("this.CredentialsForm",this.CredentialsForm)
+                this.CredentialsForm.Credid=this.cloudcredsid;
+                console.log("this.CredentialsForm.Credid",this.CredentialsForm)
+            const response = await fetch(variables.API_URL + "cloudcredentials/update", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.CredentialsForm),
+                credentials: 'include'
+                }); 
+            let data;
+                try{
+                data = await response.json();
+                }
+                catch{
+                data={};
+                } 
+                if (response.status === 401){
+                    console.log("updateCredentials");
+                    const refreshresponse = await window.refreshToken();
+                    if (refreshresponse.ok){
+                        await this.updateCredentials();
+                    }
+                    else{
+                        this.$router.push('/login');
+                    }
+                    return;
+                }
+                if ((!response.ok) && (response.status != 401)){
+                    if (data && typeof data === 'object' && data.errors) {
+                        this.fieldErrors = data.errors;
+                    throw new Error(data.errors.message || `HTTP error! status: ${response.status}`);    
+              }
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                } 
+            this.actionMessage='Cloud credentials updated successfully.'   
+            alert(this.actionMessage);     
+        }
+        catch(err){
+            this.error = err.message;
+        }
+    },
+    async addCredentials(){
+        this.error = null;
+        this.fieldErrors = {};
+        console.log("this.CredentialsForm:", this.CredentialsForm);
+        try{
+            const response = await fetch(variables.API_URL + "cloudcredentials/new", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.CredentialsForm),
+                credentials: 'include'
+                }); 
+            let data;
+                try{
+                data = await response.json();
+                }
+                catch{
+                data={};
+                } 
+                if (response.status === 401){
+                    console.log("addCredentials");
+                    const refreshresponse = await window.refreshToken();
+                    if (refreshresponse.ok){
+                        await this.addCredentials();
+                    }
+                    else{
+                        this.$router.push('/login');
+                    }
+                    return;
+                }
+                if ((!response.ok) && (response.status != 401)){
+                    if (data && typeof data === 'object' && data.errors) {
+                        this.fieldErrors = data.errors;
+                    throw new Error(data.errors.message || `HTTP error! status: ${response.status}`);    
+              }
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                } 
+            this.actionMessage='Cloud credentials added successfully.'   
+            alert(this.actionMessage);   
+            this.getProfile();  
+        }
+        catch(err){
+            this.error = err.message;
+        }   
     },
     async deleteProfile(user){
         try{
