@@ -417,8 +417,14 @@ const simulations = {
 
                                     <button type="button" 
                                     class="btn btn-secondary"
-                                    @click="RunSimulation(sim)" :disabled="loading" >
+                                    @click="RunCloudSimulation(sim)" :disabled="loading" >
                                         Execute    
+                                    </button>
+
+                                    <button type="button" 
+                                    class="btn btn-secondary"
+                                    @click="RunSimulation(sim)" :disabled="loading" >
+                                        Execute on Minikube  
                                     </button>
                                 </td>
                                 <td>
@@ -507,6 +513,30 @@ const simulations = {
                 name: '',
                 description: ''
             }, 
+            providerrunform:{
+                 simid: 0,
+                name: '',
+                description: '',
+                createdate: '',
+                updatedate: '',
+                simparams: '',
+                codeurl: '',
+                simuser: 0,
+                provider:{
+                    cloudid: 0,
+                    name: ''
+                },
+                region:{
+                        regionid: 0,
+                        regioncode: '',
+                        regionname: ''
+                    },
+                Resourcerequirement:{
+                        Instancetype: '',
+                        Mininstances: 0,
+                        Maxinstances: 0  
+                }      
+            },
             Instancetype:[
                 "Pod"
             ],
@@ -653,6 +683,22 @@ const simulations = {
                 this.runform.name=sim.usersCollection.name;
                 this.runform.description=sim.usersCollection.description;
             }
+        },
+        fillProviderRunForm(sim){
+             if ((sim) && (sim.usersCollection)){
+                this.providerrunform.simid=sim.usersCollection.simid;
+                this.providerrunform.codeurl=sim.usersCollection.codeurl;
+                this.providerrunform.simparams=sim.usersCollection.simparams;
+                this.providerrunform.simcloudname=sim.usersCollection.simcloudnavigation.name;
+                this.providerrunform.resourcerequirement.Resourceid=sim.usersCollection.resourcerequirement.resourceid;
+                this.providerrunform.simcloud=sim.usersCollection.simcloud;
+                this.providerrunform.provider.cloudid=sim.usersCollection.simcloudNavigation.cloudid;
+                this.providerrunform.resourcerequirement.instancetype=sim.usersCollection.resourcerequirement.instancetype;
+                this.providerrunform.resourcerequirement.mininstances=sim.usersCollection.resourcerequirement.mininstances;
+                this.providerrunform.resourcerequirement.maxinstances=sim.usersCollection.resourcerequirement.maxinstances;
+                this.providerrunform.region.regionid=sim.usersCollection.region.regionid;
+                this.providerrunform.region.regioncode=sim.usersCollection.region.regioncode;
+             }
         },
         clearSimExecsForm(){
             this.simexecsform.execid=0;
@@ -971,6 +1017,74 @@ const simulations = {
                     const refreshresponse = await window.refreshToken();
                     if (refreshresponse.ok){
                         await this.RunSimulation(sim);
+                    }
+                    else{
+                        this.$router.push('/login');
+                    }
+                    return;
+                }  
+                if ((!response.ok) && (response.status != 401)){
+                    if (data && typeof data === 'object' && data.errors) {
+                this.fieldErrors = data.errors;
+                var jsonstring = JSON.stringify(this.fieldErrors);
+              }
+                throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
+                }
+
+                clearInterval(progress);
+                this.progress = 100;
+                this.dataLoaded = true;
+
+            }
+            catch(err){
+                clearInterval(progress);
+                this.error = err.message;    
+            }
+            finally{
+                setTimeout(() => {
+                this.loading = false;
+              }, 500);
+            }
+            
+        },
+        async RunCloudSimulation(sim){
+            this.loading = true;
+            this.progress = 0;
+            this.dataLoaded = false;
+            this.error = null;
+
+            const progress = setInterval(() => {
+              if (this.progress < 90) {
+                this.progress += 10;
+              }
+            }, 200);
+
+            try{
+                if (!sim){
+                    throw new Error(`Simulation not found`);
+                }
+                console.log("simid", sim);
+                this.fillProviderRunForm(sim);
+                console.log("form", this.runform);
+                const response = await fetch(variables.API_URL + "SimulationRun/run", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: bodyStr = JSON.stringify(this.providerrunform),
+                credentials: 'include'
+                });
+                let data;
+                try{
+                    data = await response.json();
+                }
+                catch{
+                    data={};
+                }     
+                if (response.status === 401){
+                    const refreshresponse = await window.refreshToken();
+                    if (refreshresponse.ok){
+                        await this.RunCloudSimulation(sim);
                     }
                     else{
                         this.$router.push('/login');
