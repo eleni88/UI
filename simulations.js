@@ -538,7 +538,7 @@ const simulations = {
                 }      
             },
             Instancetype:[
-                "Pod"
+                "Node"
             ],
             resultsForm:{
                 simid: 0,
