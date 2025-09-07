@@ -108,8 +108,10 @@ const users = {
                                     v-if="mode==='edit'" class="btn btn-secondary">
                                     Update
                                 </button>
+                                <div v-if="error">
+                                    <h3>Error: {{ error }}</h3>
+                                </div> 
                             </div>
-
                             </div>
                         </div>
                     </div>
@@ -348,7 +350,6 @@ data(){
             return returnValue;
         },
         clearForm(){
-            console.log("ClearForm !!!!!");
             this.form.userid=0;
             this.form.firstname='';
             this.form.lastname='';
@@ -360,6 +361,7 @@ data(){
             this.form.organization='';
             this.form.admin=false;
             this.form.active=true;
+            this.error=null;
         },
         fillForm(user){
             if ((user) && (user.usersCollection)){
@@ -491,11 +493,16 @@ data(){
                     }
                     return;
                 } 
-                
                 if ((!response.ok) && (response.status != 401)){
-                    if (data && typeof data === 'object' && data.errors) {
-                this.fieldErrors = data.errors;
-                var jsonstring = JSON.stringify(this.fieldErrors);
+                    if (data && typeof data === 'object') {
+                        if (data.errors){
+                            this.fieldErrors = data.errors;
+                            var jsonstring = JSON.stringify(this.fieldErrors);
+                        }
+                        else
+                        if (data.message){
+                            var jsonstring = data.message;    
+                        }
               }
                 throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
                 }
@@ -546,13 +553,20 @@ data(){
                 } 
 
                 if ((!response.ok) && (response.status != 401)){
-                    if (data && typeof data === 'object' && data.errors) {
-                this.fieldErrors = data.errors;
-                var jsonstring = JSON.stringify(this.fieldErrors);
+                    if (data && typeof data === 'object') {
+                        if (data.errors){
+                            this.fieldErrors = data.errors;
+                            var jsonstring = JSON.stringify(this.fieldErrors);
+                        }
+                        else
+                        if (data.message){
+                            var jsonstring=data.message;    
+                        }
                 }
                 throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
               }
-              this.actionMessage='User updated successfully.'   
+              console.log("data.message", data);
+              this.actionMessage='User updated successfully.';
               alert(this.actionMessage);
               this.refreshUsers();
             }
@@ -599,9 +613,8 @@ data(){
                     return;
                 } 
                 if ((!response.ok) && (response.status != 401)){
-                    if (data && typeof data === 'object' && data.errors) {
-                this.fieldErrors = data.errors;
-                var jsonstring = JSON.stringify(this.fieldErrors);
+                    if (data && typeof data === 'object' && data.message) {
+                        var jsonstring = data.message;
                 }
                 throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
               }
