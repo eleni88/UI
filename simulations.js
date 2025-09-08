@@ -864,9 +864,15 @@ const simulations = {
                     return;
                 }             
                 if ((!response.ok) && (response.status != 401)){
-                    if (data && typeof data === 'object' && data.errors) {
-                this.fieldErrors = data.errors;
-                var jsonstring = JSON.stringify(this.fieldErrors);
+                    if (data && typeof data === 'object') {
+                        if (data.errors){
+                            this.fieldErrors = data.errors;
+                            var jsonstring = JSON.stringify(this.fieldErrors);
+                        }
+                        else
+                        if (data.message){
+                            var jsonstring = data.message;    
+                        }    
               }
                 throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
                 }
@@ -917,9 +923,15 @@ const simulations = {
                     return;
                 } 
                 if ((!response.ok) && (response.status != 401)){
-                    if (data && typeof data === 'object' && data.errors) {
-                this.fieldErrors = data.errors;
-                var jsonstring = JSON.stringify(this.fieldErrors);
+                    if (data && typeof data === 'object') {
+                        if (data.errors){
+                            this.fieldErrors = data.errors;
+                            var jsonstring = JSON.stringify(this.fieldErrors);
+                        }
+                        else
+                        if (data.message){
+                            var jsonstring = data.message;    
+                        }
                 }
                 throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
               }
@@ -1024,9 +1036,15 @@ const simulations = {
                     return;
                 }  
                 if ((!response.ok) && (response.status != 401)){
-                    if (data && typeof data === 'object' && data.errors) {
-                this.fieldErrors = data.errors;
-                var jsonstring = JSON.stringify(this.fieldErrors);
+                    if (data && typeof data === 'object') {
+                        if (data.errors){
+                            this.fieldErrors = data.errors;
+                            var jsonstring = JSON.stringify(this.fieldErrors);
+                        }
+                        else
+                        if (data.message){
+                            var jsonstring = data.message;
+                        }
               }
                 throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
                 }
@@ -1092,9 +1110,15 @@ const simulations = {
                     return;
                 }  
                 if ((!response.ok) && (response.status != 401)){
-                    if (data && typeof data === 'object' && data.errors) {
-                this.fieldErrors = data.errors;
-                var jsonstring = JSON.stringify(this.fieldErrors);
+                    if (data && typeof data === 'object') {
+                        if (data.errors){
+                            this.fieldErrors = data.errors;
+                            var jsonstring = JSON.stringify(this.fieldErrors);
+                        }
+                        else
+                        if (data.message){
+                            var jsonstring = data.message;
+                        }
               }
                 throw new Error(jsonstring || `HTTP error! status: ${response.status}`);
                 }

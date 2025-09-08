@@ -390,9 +390,9 @@ data(){
                 const lname = el.usersCollection?.lastname?.toLowerCase() || "";
                 const uname = el.usersCollection?.username?.toLowerCase() || "";
 
-                return fname.startsWith(filterFirstName) &&
-                    lname.startsWith(filterLastName) &&
-                    uname.startsWith(filterUserName);
+            return fname.startsWith(filterFirstName) &&
+                   lname.startsWith(filterLastName) &&
+                   uname.startsWith(filterUserName);
             });
         },
         async ViewClick(user){
