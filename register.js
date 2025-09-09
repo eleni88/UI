@@ -186,7 +186,7 @@ const register = { template: `<div class="container p-5">
               throw new Error(data.message || `HTTP error! status: ${response.status}`);
             }
            
-            this.submitmessage = `Registration successfully`;
+            this.submitmessage = `Registration success.`;
             alert(this.submitmessage);
             this.$router.push('/login');
           }
