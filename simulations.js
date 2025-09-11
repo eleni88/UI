@@ -34,7 +34,7 @@ const simulations = {
 
                                 <!-- Modal Header -->
                                 <div class="modal-header">
-                                    <h4 class="modal-title">Results — Exec #{{ resultsForm.execid }}</h4>
+                                    <h4 class="modal-title">Results — Execution {{ resultsForm.execid }}</h4>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
 
@@ -651,10 +651,12 @@ const simulations = {
                     frm.provider.cloudid=sim.usersCollection.simcloudNavigation.cloudid;
                     frm.provider.name=sim.usersCollection.simcloudNavigation.name;
                     
-                    frm.Resourcerequirement.Resourceid=sim.usersCollection.resourcerequirement.resourceid;
+                  //  frm.Resourcerequirement.Resourceid=sim.usersCollection.resourcerequirement.resourceid;
                     frm.Resourcerequirement.Instancetype=sim.usersCollection.resourcerequirement.instancetype;
                     frm.Resourcerequirement.Mininstances=sim.usersCollection.resourcerequirement.mininstances;
                     frm.Resourcerequirement.Maxinstances=sim.usersCollection.resourcerequirement.maxinstances;
+
+                    frm.simexecutions=sim.usersCollection.simexecutions;
                 }
                 else
                 if ((this.mode == 'edit') || (this.mode == 'create')){
@@ -1253,7 +1255,16 @@ const simulations = {
                 });
 
                 let data;
-                try { data = await response.json(); } catch { data = {}; }
+                try { 
+                    data = await response.json(); 
+                } 
+                catch { 
+                    data = {}; 
+                }
+
+                console.log("data", data);
+
+                console.log("dadata.Execreportta", data.Execreport);
 
                 if (response.status === 401) {
                 const refreshresponse = await window.refreshToken();
@@ -1263,14 +1274,9 @@ const simulations = {
                 }
                 if (!response.ok && response.status !== 401) {
                 throw new Error(data.message || `HTTP error! status: ${response.status}`);
-                }
-
-                const parsed = JSON.parse(data.Execreport)
-                 this.resultsForm.CustomersServed = parsed.CustomersServed ?? null;
-                 this.resultsForm.AvgWaitingTime = parsed.AvgWaitingTime ?? null;
-                
-                 // this.resultsForm.CustomersServed = data.CustomersServed ?? null;
-                // this.resultsForm.AvgWaitingTime = data.AvgWaitingTime ?? null;
+                }           
+                this.resultsForm.CustomersServed = data.CustomersServed ?? null;
+                this.resultsForm.AvgWaitingTime = data.AvgWaitingTime ?? null;
                 this.resultsForm.Error = data.Error ?? null;
 
             } catch (err) {
