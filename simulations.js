@@ -271,7 +271,7 @@ const simulations = {
                                                 <td> {{ form.simuser }} </td>
                                             </tr>
                                              <tr>
-                                                <th>cloud Provider:</th>
+                                                <th>Cloud Provider:</th>
                                                 <td> {{ form.provider.name }} </td>
                                             </tr>
                                             <tr>
@@ -564,6 +564,12 @@ const simulations = {
                     p => p.cloudid === this.updateform.simcloud
                     );
                 return selectedProvider?.regions || [];
+            },
+            selectProviderInstances(){
+                const selectedProvider = this.providers.find(
+                    p => p.cloudid === this.updateform.simcloud
+                );
+                return selectedProvider?.instancetypes || [];
             }
         },
     methods:{
