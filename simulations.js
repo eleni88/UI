@@ -152,8 +152,8 @@ const simulations = {
                                         <label class="form-label">Resource</label>
                                         <select class="form-select" v-model="updateform.Resourcerequirement.Instancetype">
                                             <option disabled value="">-- Select Resource --</option>
-                                            <option v-for="res in Instancetype" :key="res" :value="res">
-                                            {{ res }}
+                                            <option v-for="res in selectProviderInstances" :key="res.instanceid" :value="res.instancetype1">
+                                            {{ res.instancetype1 }}
                                             </option>
                                         </select>
                                         <div style="color: red;" v-if="fieldErrors.Resourcerequirement?.Instancetype || fieldErrors.Instancetype">
@@ -171,9 +171,9 @@ const simulations = {
 
                                     <div class="input-group mb-3">
                                         <span class="input-group-text">MaxInstances:</span>
-                                        <input name="Resourcerequirement.MaxInstances" type="text" class="form-control" v-model="updateform.Resourcerequirement.MaxInstances">
-                                        <div style="color: red;" v-if="fieldErrors.Resourcerequirement?.MaxInstances">
-                                            {{ fieldErrors.Resourcerequirement?.MaxInstances }}
+                                        <input name="Resourcerequirement.Maxinstances" type="text" class="form-control" v-model="updateform.Resourcerequirement.Maxinstances">
+                                        <div style="color: red;" v-if="fieldErrors.Resourcerequirement?.Maxinstances">
+                                            {{ fieldErrors.Resourcerequirement?.Maxinstances }}
                                         </div>
                                     </div>
                                 
@@ -492,6 +492,7 @@ const simulations = {
                 simuser: 0,
                 simcloud: 0, 
                 regionid: 0,
+                instanceid: 0,
                 Resourcerequirement:{
                         Instancetype: '',
                         Mininstances: 0,
@@ -537,9 +538,6 @@ const simulations = {
                         Maxinstances: 0  
                 }      
             },
-            Instancetype:[
-                "Node"
-            ],
             resultsForm:{
                 simid: 0,
                 execid: 0,
@@ -563,12 +561,15 @@ const simulations = {
                 const selectedProvider = this.providers.find(
                     p => p.cloudid === this.updateform.simcloud
                     );
+                    console.log('selectedProvider?.regions',selectedProvider?.regions);
                 return selectedProvider?.regions || [];
             },
             selectProviderInstances(){
                 const selectedProvider = this.providers.find(
                     p => p.cloudid === this.updateform.simcloud
                 );
+                console.log('selectedProvider?.instancetypes', selectedProvider?.instancetypes);
+                console.log('selectedProvider', selectedProvider);
                 return selectedProvider?.instancetypes || [];
             }
         },
@@ -636,6 +637,7 @@ const simulations = {
             if (this.mode == 'edit')    
             frm.regionid=0;
             frm.simcloud=0;
+            frm.instanceid=0;
         },
         fillForm(sim,frm){
             console.log("frm", frm); 
@@ -649,15 +651,15 @@ const simulations = {
                 frm.updatedate=sim.usersCollection.updatedate;
                 frm.simparams=sim.usersCollection.simparams;
                 frm.codeurl=sim.usersCollection.codeurl;
-                frm.simuser=sim.usersCollection.simuser;              
+                frm.simuser=sim.usersCollection.simuser;  
+                          
                 if (this.mode == 'view'){                   
                     frm.region.regionid=sim.usersCollection.region.regionid;
                     frm.region.regioncode=sim.usersCollection.region.regioncode;
                     frm.region.regionname=sim.usersCollection.region.regionname;       
                     frm.provider.cloudid=sim.usersCollection.simcloudNavigation.cloudid;
-                    frm.provider.name=sim.usersCollection.simcloudNavigation.name;
+                    frm.provider.name=sim.usersCollection.simcloudNavigation.name;               
                     
-                  //  frm.Resourcerequirement.Resourceid=sim.usersCollection.resourcerequirement.resourceid;
                     frm.Resourcerequirement.Instancetype=sim.usersCollection.resourcerequirement.instancetype;
                     frm.Resourcerequirement.Mininstances=sim.usersCollection.resourcerequirement.mininstances;
                     frm.Resourcerequirement.Maxinstances=sim.usersCollection.resourcerequirement.maxinstances;
@@ -667,7 +669,8 @@ const simulations = {
                 else
                 if ((this.mode == 'edit') || (this.mode == 'create')){
                     frm.regionid=sim.usersCollection.regionid;  
-                    frm.simcloud=sim.usersCollection.simcloud;  
+                    frm.simcloud=sim.usersCollection.simcloud; 
+                    frm.instanceid=sim.usersCollection.instanceid;  
                 }
                 
             }   
@@ -773,10 +776,10 @@ const simulations = {
                 this.clearForm(this.form);
             }
         }
-    }
-        catch(err){
-            this.error = err.message;
-          }  
+            }
+                catch(err){
+                    this.error = err.message;
+            }  
         
         },
         addClick(){
@@ -900,9 +903,8 @@ const simulations = {
                 if (!this.selectedSim || !this.selectedSim._links){
                     throw new Error(`Simulation or simulation links not found`);
                 }
+                console.log('this.updateform',this.updateform);
                 const simlink = this.selectedSim._links.find(link => link.rel === 'update_sim'); 
-                console.log('region:', this.form.regionid);
-                console.log('provider:',this.form.simcloud);
                 if (simlink != null) {       
                 const response = await fetch(simlink.href, {
                 method: simlink.method,
