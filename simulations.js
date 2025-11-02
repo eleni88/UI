@@ -21,7 +21,8 @@ const simulations = {
                                     <security-questions ref="securityQuestionComponent" />
                                 </div>
                                 <div class="modal-footer">
-                                    <button class="btn btn-secondary" @click="DeleteSimulation()">Submit</button>
+                                    <button class="btn btn-secondary" @click="DeleteSimulation()" v-if="selectedSimExec===null" >Submit</button>
+                                    <button class="btn btn-secondary" @click="DeleteSimExec()" v-if="selectedSimExec!=null">Submit</button>
                                 </div>
                             </div>
                         </div>
@@ -348,7 +349,7 @@ const simulations = {
 
                                                     <button type="button" 
                                                         class="btn btn-secondary"
-                                                        @click="DeleteSimExec(form.simid,simexec.execid)">
+                                                        @click="DeleteSimOrSimexec(form.simid,simexec.execid)">
                                                             Delete    
                                                     </button>                                              
                                                 </td>
@@ -411,7 +412,7 @@ const simulations = {
 
                                     <button type="button" 
                                     class="btn btn-secondary"
-                                    @click="DeleteSim(sim)" v-if="hasLink(sim._links, 'delete_sim')">
+                                    @click="DeleteSimOrSimexec(sim)" v-if="hasLink(sim._links, 'delete_sim')">
                                         Delete    
                                     </button>
 
@@ -451,6 +452,7 @@ const simulations = {
             simulations:[],
             mode: '',
             selectedSim: null,
+            selectedSimExec: null,
             error: null,
             modalTitle: '',
             buttonTitle: '',
@@ -835,12 +837,17 @@ const simulations = {
                 }
             },
             
-        DeleteSim(sim){
+        DeleteSimOrSimexec(sim,simexec){
             console.log('sim:', sim);
+            console.log('simexec:', simexec);
             if (sim) {
                 this.selectedSim=sim;
                 console.log('this.selectedSim:', this.selectedSim);
-                new bootstrap.Modal(document.getElementById("SecurityQuestionModal")).show();
+                if (simexec) {
+                    this.selectedSimExec=simexec
+                    console.log('this.selectedSimExec:', this.selectedSimExec);
+                } 
+                new bootstrap.Modal(document.getElementById("SecurityQuestionModal")).show();      
             }
         },
         async CreateSimulation(){
@@ -954,7 +961,7 @@ const simulations = {
                 this.error = err.message;   
             }        
         },
-        async DeleteSimulation(sim){
+        async DeleteSimulation(){
             try{
                 sim = this.selectedSim;
                 if (!sim || !sim._links){
@@ -980,7 +987,7 @@ const simulations = {
                 if (response.status === 401){
                     const refreshresponse = await window.refreshToken();
                     if (refreshresponse.ok){
-                        await this.DeleteSimulation(sim);
+                        await this.DeleteSimulation();
                     }
                     else{
                         this.$router.push('/login');
@@ -1202,20 +1209,25 @@ const simulations = {
             }     
 
         },
-        async DeleteSimExec(simid,simexecid){
+        async DeleteSimExec(){
             this.error = null;
             try{
+                simid = this.selectedSim;
+                simexecid = this.selectedSimExec;
                 console.log('simid:', simid);
                 console.log('simexecid:', simexecid);
-              const response = await fetch(variables.API_URL + "Simulation/" + simid + "/simexecutions/" + simexecid, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              credentials: 'include'
-            });
-         
-            let data;
+                const component = this.$refs.securityQuestionComponent;
+                await component.submitQuestions( async () => {
+                if ((simid) && (simexecid))  {
+                    const response = await fetch(variables.API_URL + "Simulation/" + simid + "/simexecutions/" + simexecid, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include'
+                        });
+                    
+                let data;
                 try{
                 data = await response.json();
                 }
@@ -1226,7 +1238,7 @@ const simulations = {
                     console.log("DeleteSimExec");
                     const refreshresponse = await window.refreshToken();
                     if (refreshresponse.ok){
-                        await this.DeleteSimExec(simid,simexecid);
+                        await this.DeleteSimExec();
                     }
                     else{
                         this.$router.push('/login');
@@ -1234,12 +1246,15 @@ const simulations = {
                     return;
                 }    
             
-            if ((!response.ok) && (response.status != 401)){
-              throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                if ((!response.ok) && (response.status != 401)){
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                } 
+                this.actionMessage='Simulation execution deleted successfully.'   
+                alert(this.actionMessage);
+                bootstrap.Modal.getInstance(document.getElementById("SecurityQuestionModal")).hide();
             } 
-            this.actionMessage='Simulation execution deleted successfully.'   
-            alert(this.actionMessage);
-
+            })
+            
             }
             catch(err){
                 this.error = err.message;
