@@ -41,7 +41,7 @@ const simulations = {
 
                                 <!-- Modal body -->
                                 <div class="modal-body">
-                                    <div v-if="(resultsForm.loading && (resultsForm.execid===this.selectedSimExec))" class="d-flex align-items-center gap-2">
+                                    <div v-if="(resultsForm.loading)" class="d-flex align-items-center gap-2">
                                         <div class="spinner-border text-dark" role="status"></div>
                                         <span>Loading results…</span>
                                     </div>
@@ -429,12 +429,12 @@ const simulations = {
                                     </button>
                                 </td>
                                 <td>
-                                    <div class="progress" v-if="loading">
+                                    <div class="progress" v-if="loading && sim===this.selectedSim">
                                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" :style="{ width: progress + '%' }">
                                         {{ progress }} %
                                         </div>
                                     </div>
-                                    <div v-if="!loading && dataLoaded" class="alert alert-success mt-3">
+                                    <div v-if="!loading && dataLoaded && sim===this.selectedSim" class="alert alert-success mt-3">
                                         Completed
                                     </div>
                                 </td>
@@ -1008,7 +1008,7 @@ const simulations = {
             }
         },
         async RunSimulation(sim){
-
+            this.selectedSim=sim;
             this.loading = true;
             this.progress = 0;
             this.dataLoaded = false;
@@ -1261,7 +1261,6 @@ const simulations = {
             }     
         },
         async ViewResultsClick(simid, simexecid) {
-            this.selectedSimExec=simexecid;
             this.resultsForm.simid = simid;
             this.resultsForm.execid = simexecid;
             this.resultsForm.loading = true;
@@ -1288,9 +1287,6 @@ const simulations = {
 
                 console.log("data", data);
 
-                console.log("data.error", typeof data);
-                console.log("data.type of boolean", typeof data === 'object');
-
                 if (response.status === 401) {
                 const refreshresponse = await window.refreshToken();
                 if (refreshresponse.ok) return await this.ViewResultsClick(simid, simexecid);
@@ -1301,24 +1297,17 @@ const simulations = {
                 throw new Error(data.message || `HTTP error! status: ${response.status}`);
                 } 
  
-                if ((data.length>0)){
-                    console.log("inside if 2", data.length>0);
-                    
-                    var i = data.length-1;
+                if ((data.length>0)){                   
+                   var i = data.length-1;
                     this.resultsForm.CustomersServed = data[i].customersServed ?? null;
                     this.resultsForm.AvgWaitingTime = data[i].avgWaitingTime ?? null;
                     this.resultsForm.Error = data[i].error ?? null;
-
-                    console.log("this.resultsForm.CustomersServed", this.resultsForm.CustomersServed);
                 } 
                 else
                {
-                     console.log("inside if 1", typeof data === 'object');
-
                 this.resultsForm.CustomersServed = data.CustomersServed ?? null;
                 this.resultsForm.AvgWaitingTime = data.AvgWaitingTime ?? null;
                 this.resultsForm.Error = data.Error ?? null;
-                console.log("this.resultsForm.CustomersServed", this.resultsForm.CustomersServed);
                 }                   
 
             } catch (err) {
