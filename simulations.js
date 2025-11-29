@@ -41,11 +41,11 @@ const simulations = {
 
                                 <!-- Modal body -->
                                 <div class="modal-body">
-                                    <div v-if="resultsForm.loading" class="d-flex align-items-center gap-2">
+                                    <div v-if="(resultsForm.loading && (resultsForm.execid===this.selectedSimExec))" class="d-flex align-items-center gap-2">
                                         <div class="spinner-border text-dark" role="status"></div>
                                         <span>Loading results…</span>
                                     </div>
-                                    <div v-else-if="resultsForm.error" class="alert alert-danger">
+                                    <div v-else-if="resultsForm.error!=null" class="alert alert-danger">
                                         {{ resultsForm.error }}
                                     </div>
 
@@ -60,7 +60,7 @@ const simulations = {
                                                 <th>Avg Waiting Time (sec)</th>
                                                 <td>{{ resultsForm.AvgWaitingTime }}</td>
                                             </tr>
-                                            <tr v-if="resultsForm.Error">
+                                            <tr v-if="resultsForm.Error!=null">
                                                 <th>Error</th>
                                                 <td class="text-danger">{{ resultsForm.Error }}</td>
                                             </tr>
@@ -1261,6 +1261,7 @@ const simulations = {
             }     
         },
         async ViewResultsClick(simid, simexecid) {
+            this.selectedSimExec=simexecid;
             this.resultsForm.simid = simid;
             this.resultsForm.execid = simexecid;
             this.resultsForm.loading = true;
@@ -1298,9 +1299,9 @@ const simulations = {
                 if (!response.ok && response.status !== 401) {
                 throw new Error(data.message || `HTTP error! status: ${response.status}`);
                 }           
-                this.resultsForm.CustomersServed = data.CustomersServed ?? null;
-                this.resultsForm.AvgWaitingTime = data.AvgWaitingTime ?? null;
-                this.resultsForm.Error = data.Error ?? null;
+                this.resultsForm.CustomersServed = data.customersServed ?? null;
+                this.resultsForm.AvgWaitingTime = data.avgWaitingTime ?? null;
+                this.resultsForm.Error = data.error ?? null;
 
             } catch (err) {
                 this.resultsForm.error = err.message;
