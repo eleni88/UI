@@ -1288,7 +1288,8 @@ const simulations = {
 
                 console.log("data", data);
 
-                console.log("dadata.Execreportta", data.Execreport);
+                console.log("data.error", typeof data);
+                console.log("data.type of boolean", typeof data === 'object');
 
                 if (response.status === 401) {
                 const refreshresponse = await window.refreshToken();
@@ -1298,10 +1299,27 @@ const simulations = {
                 }
                 if (!response.ok && response.status !== 401) {
                 throw new Error(data.message || `HTTP error! status: ${response.status}`);
-                }           
-                this.resultsForm.CustomersServed = data.customersServed ?? null;
-                this.resultsForm.AvgWaitingTime = data.avgWaitingTime ?? null;
-                this.resultsForm.Error = data.error ?? null;
+                } 
+ 
+                if ((data.length>0)){
+                    console.log("inside if 2", data.length>0);
+                    
+                    var i = data.length-1;
+                    this.resultsForm.CustomersServed = data[i].customersServed ?? null;
+                    this.resultsForm.AvgWaitingTime = data[i].avgWaitingTime ?? null;
+                    this.resultsForm.Error = data[i].error ?? null;
+
+                    console.log("this.resultsForm.CustomersServed", this.resultsForm.CustomersServed);
+                } 
+                else
+               {
+                     console.log("inside if 1", typeof data === 'object');
+
+                this.resultsForm.CustomersServed = data.CustomersServed ?? null;
+                this.resultsForm.AvgWaitingTime = data.AvgWaitingTime ?? null;
+                this.resultsForm.Error = data.Error ?? null;
+                console.log("this.resultsForm.CustomersServed", this.resultsForm.CustomersServed);
+                }                   
 
             } catch (err) {
                 this.resultsForm.error = err.message;
