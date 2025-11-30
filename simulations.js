@@ -1265,9 +1265,9 @@ const simulations = {
             this.resultsForm.execid = simexecid;
             this.resultsForm.loading = true;
             this.resultsForm.error = null;
-            this.resultsForm.CustomersServed = null;
-            this.resultsForm.AvgWaitingTime = null;
-            this.resultsForm.Error = null;
+            this.resultsForm.CustomersServed = [];
+            this.resultsForm.AvgWaitingTime = [];
+            this.resultsForm.Error = [];
 
             try {
                 const response = await fetch(variables.API_URL + "Simulation/" +simid + "/simexecutions/" + simexecid + "/results", {
@@ -1297,11 +1297,13 @@ const simulations = {
                 throw new Error(data.message || `HTTP error! status: ${response.status}`);
                 } 
  
-                if ((data.length>0)){                   
-                   var i = data.length-1;
-                    this.resultsForm.CustomersServed = data[i].customersServed ?? null;
-                    this.resultsForm.AvgWaitingTime = data[i].avgWaitingTime ?? null;
-                    this.resultsForm.Error = data[i].error ?? null;
+                if ((data.length>0)){            
+                   //var i = data.length-1;
+                   for (let i=0; i<data.length; i++){ 
+                     this.resultsForm.CustomersServed[i] = data[i].customersServed ?? null;
+                     this.resultsForm.AvgWaitingTime[i] = data[i].avgWaitingTime ?? null;
+                     this.resultsForm.Error[i] = data[i].error ?? null;
+                   }
                 } 
                 else
                {
