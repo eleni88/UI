@@ -494,7 +494,6 @@ const simulations = {
                 simuser: 0,
                 simcloud: 0, 
                 regionid: 0,
-                instanceid: 0,
                 Resourcerequirement:{
                         Instancetype: '',
                         Mininstances: 0,
