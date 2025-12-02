@@ -914,6 +914,7 @@ const simulations = {
                 }
                 console.log('this.updateform',this.updateform);
                 const simlink = this.selectedSim._links.find(link => link.rel === 'update_sim'); 
+                console.log('simlink',simlink);
                 if (simlink != null) {       
                 const response = await fetch(simlink.href, {
                 method: simlink.method,
@@ -1034,7 +1035,7 @@ const simulations = {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: bodyStr = JSON.stringify(this.runform),
+                body: JSON.stringify(this.runform),
                 credentials: 'include'
                 });
                 let data;
