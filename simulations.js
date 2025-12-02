@@ -739,6 +739,8 @@ const simulations = {
             this.error = null;           
             try{
                 const simlink = sim._links.find(link => link.rel === 'self');
+                console.log('simlink:', simlink);
+                console.log('simlink.href:', simlink.href);
                 if (simlink != null){
               const response = await fetch(simlink.href, {
               method: simlink.method,
