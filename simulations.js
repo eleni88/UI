@@ -335,7 +335,7 @@ const simulations = {
                                                         class="btn btn-secondary"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#ViewSimExecsModal"
-                                                        @click="ViewExecClick(form.simid,simexec.execid)">
+                                                        @click="ViewExecClick(form.simid,simexec.execid)" :disabled="loading">
                                                             View   
                                                     </button>
 
@@ -343,15 +343,25 @@ const simulations = {
                                                         class="btn btn-secondary"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#ViewResults"
-                                                        @click="ViewResultsClick(form.simid,simexec.execid)">
+                                                        @click="ViewResultsClick(form.simid,simexec.execid)" :disabled="loading">
                                                             Results   
                                                     </button>
 
                                                     <button type="button" 
                                                         class="btn btn-secondary"
-                                                        @click="DeleteSimOrSimexec(form.simid,simexec.execid)">
+                                                        @click="DeleteSimOrSimexec(form.simid,simexec.execid)" :disabled="loading">
                                                             Delete    
                                                     </button>                                              
+                                                </td>
+                                                <td>
+                                                <div class="progress" v-if="loading && simexec.duration === null">
+                                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" :style="{ width: progress + '%' }">
+                                                    {{ progress }} %
+                                                    </div>
+                                                    </div>
+                                                    <div v-if="!loading && dataLoaded && simexec.execid===this.newsimexec" class="alert alert-success">
+                                                        Completed
+                                                    </div>
                                                 </td>
                                             </tr>   
                                         </tbody>
@@ -406,37 +416,27 @@ const simulations = {
                                     class="btn btn-secondary"
                                     data-bs-toggle="modal"
                                     data-bs-target="#SimsModal"
-                                    @click="editClick(sim)" v-if="hasLink(sim._links, 'update_sim')">
+                                    @click="editClick(sim)" v-if="hasLink(sim._links, 'update_sim')" :disabled="loading">
                                         Edit   
                                     </button>
 
                                     <button type="button" 
                                     class="btn btn-secondary"
-                                    @click="DeleteSimOrSimexec(sim)" v-if="hasLink(sim._links, 'delete_sim')">
+                                    @click="DeleteSimOrSimexec(sim)" v-if="hasLink(sim._links, 'delete_sim')" :disabled="loading">
                                         Delete    
                                     </button>
 
                                     <button type="button" 
                                     class="btn btn-secondary"
-                                    @click="RunCloudSimulation(sim)" :disabled="loading" >
+                                    @click="RunCloudSimulation(sim)">
                                         Execute    
                                     </button>
 
                                     <button type="button" 
                                     class="btn btn-secondary"
-                                    @click="RunSimulation(sim)" :disabled="loading" >
+                                    @click="RunSimulation(sim)">
                                         Execute on Minikube  
                                     </button>
-                                </td>
-                                <td>
-                                    <div class="progress" v-if="loading && sim===this.selectedSim">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" :style="{ width: progress + '%' }">
-                                        {{ progress }} %
-                                        </div>
-                                    </div>
-                                    <div v-if="!loading && dataLoaded && sim===this.selectedSim" class="alert alert-success mt-3">
-                                        Completed
-                                    </div>
                                 </td>
                             </tr>    
                         </tbody>
@@ -553,7 +553,9 @@ const simulations = {
             actionMessage: '',
             loading: false,
             progress: 0,
+            endtime: null,
             dataLoaded: false,
+            newsimexec: 0,
             error: null
         }
     },
@@ -731,6 +733,15 @@ const simulations = {
 
                 return fname.startsWith(filtername)
             });
+        },
+        checkTime(execEndTime, currDate){
+            let inpDate = new Date(execEndTime);
+            let DateNow = new Date(currDate);
+            //return (inpDate.toDateString() == currDate.toDateString());
+
+            let inpDateTime = inpDate.getTime();
+            let currDateTime = DateNow.getTime();
+            return inpDateTime == currDateTime;
         },
         async ViewClick(sim){
             this.modalTitle="View Simulation";
@@ -1043,7 +1054,12 @@ const simulations = {
                 }
                 catch{
                     data={};
-                }     
+                    console.log('data0', data);  
+                }   
+                console.log('data!!!!!', data);  
+                
+                console.log('response.ok', response.ok);  
+                console.log('response.status', response.status);  
                 if (response.status === 401){
                     const refreshresponse = await window.refreshToken();
                     if (refreshresponse.ok){
@@ -1071,13 +1087,16 @@ const simulations = {
                 clearInterval(progress);
                 this.progress = 100;
                 this.dataLoaded = true;
-
+                this.newsimexec = data;
+                
             }
             catch(err){
                 clearInterval(progress);
                 this.error = err.message;    
+                console.log('this.error', this.error);
             }
             finally{
+                this.endtime = Date.now();
                 setTimeout(() => {
                 this.loading = false;
               }, 500);
@@ -1300,7 +1319,6 @@ const simulations = {
                 } 
  
                 if ((data.length>0)){            
-                   //var i = data.length-1;
                    for (let i=0; i<data.length; i++){ 
                      this.resultsForm.CustomersServed[i] = data[i].customersServed ?? null;
                      this.resultsForm.AvgWaitingTime[i] = data[i].avgWaitingTime ?? null;
