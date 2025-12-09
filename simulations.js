@@ -734,15 +734,6 @@ const simulations = {
                 return fname.startsWith(filtername)
             });
         },
-        checkTime(execEndTime, currDate){
-            let inpDate = new Date(execEndTime);
-            let DateNow = new Date(currDate);
-            //return (inpDate.toDateString() == currDate.toDateString());
-
-            let inpDateTime = inpDate.getTime();
-            let currDateTime = DateNow.getTime();
-            return inpDateTime == currDateTime;
-        },
         async ViewClick(sim){
             this.modalTitle="View Simulation";
             this.mode="view";  
@@ -1164,6 +1155,7 @@ const simulations = {
                 clearInterval(progress);
                 this.progress = 100;
                 this.dataLoaded = true;
+                this.newsimexec = data;
 
             }
             catch(err){
@@ -1171,6 +1163,7 @@ const simulations = {
                 this.error = err.message;    
             }
             finally{
+                this.endtime = Date.now();
                 setTimeout(() => {
                 this.loading = false;
               }, 500);
